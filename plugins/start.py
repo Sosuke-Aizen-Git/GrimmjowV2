@@ -8,11 +8,6 @@ from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL
 from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
 
-from bot import Bot
-from pyrogram import filters
-from config import ADMINS, OWNER_ID
-from pyrogram.types import Message
-
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
@@ -247,13 +242,6 @@ async def delete_files(messages, client, k):
     # await client.send_message(messages[0].chat.id, "Your Video / File Is Successfully Deleted ✅")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
     
-@Bot.on_message(filters.command('admins') & filters.private)
-async def show_admins(client: Bot, message: Message):
-    if message.from_user.id != OWNER_ID:
-        return await message.reply_text("❌ You are not authorized to view bot admins!")
-
-    admin_list = "\n".join([f"<code>{admin}</code>" for admin in ADMINS])
-    await message.reply_text(f"👑 <b>Total Bot Admins:</b>\n\n{admin_list}", quote=True)
 # Jishu Developer 
 # Don't Remove Credit 🥺
 # Telegram Channel @Madflix_Bots
