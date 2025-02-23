@@ -8,6 +8,12 @@ from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL
 from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
 
+
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from config import OWNER_ID, ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4
+
+
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
@@ -234,6 +240,27 @@ async def delete_files(messages, client, k):
             print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
     # await client.send_message(messages[0].chat.id, "Your Video / File Is Successfully Deleted ✅")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
+
+
+@Client.on_message(filters.command("fsubs") & filters.user([OWNER_ID] + ADMINS))
+async def force_subs(client, message):
+    channels = [FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4]
+    
+    buttons = []
+    for channel in channels:
+        if channel and str(channel).startswith("-100"):  # Ensure it's a valid channel ID
+            try:
+                chat = await client.get_chat(channel)  # Fetch channel details
+                invite_link = await client.create_chat_invite_link(channel)
+                buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])  # Use channel name
+            except Exception as e:
+                print(f"Error generating invite link for {channel}: {e}")
+    
+    if not buttons:
+        return await message.reply_text("No valid force subscription channels found!")
+
+    reply_markup = InlineKeyboardMarkup(buttons)
+    await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
 
 
 
