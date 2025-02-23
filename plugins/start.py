@@ -12,6 +12,9 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import OWNER_ID, ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4
 
+from pyrogram import Client, filters
+from config import OWNER_ID, ADMINS
+
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
@@ -264,7 +267,26 @@ async def delete_files(messages, client, k):
             print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
     # await client.send_message(messages[0].chat.id, "Your Video / File Is Successfully Deleted ✅")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
+
+
+@Client.on_message(filters.command("admins") & filters.user([OWNER_ID] + ADMINS))
+async def list_admins(client, message):
+    unique_admins = list(set(ADMINS))  # Remove duplicate IDs
+    admins_list = []
     
+    for index, admin_id in enumerate(unique_admins, start=1):
+        try:
+            user = await client.get_users(admin_id)  # Fetch user details
+            admin_name = f"[{user.first_name}](tg://user?id={admin_id})"
+        except Exception:
+            admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
+        
+        admins_list.append(f"**{index}.** {admin_name} (`{admin_id}`)")
+    
+    admin_text = "👮‍♂️ **Here is the list of bot admins:**\n\n" + "\n".join(admins_list)
+    await message.reply_text(admin_text, disable_web_page_preview=True)
+
+
 # Jishu Developer 
 # Don't Remove Credit 🥺
 # Telegram Channel @Madflix_Bots
