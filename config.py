@@ -10,7 +10,7 @@ API_ID = int(os.environ.get("API_ID", "20420188"))
 API_HASH = os.environ.get("API_HASH", "ac372bd945f5773afe0b714c6429039b")
 
 
-OWNER_ID = int(os.environ.get("OWNER_ID", "1993048420"))
+OWNER_ID = int(os.environ.get("OWNER_ID", "5743248220"))
 DB_URL = os.environ.get("DB_URL", "mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 DB_NAME = os.environ.get("DB_NAME", "sahil")
 
@@ -22,7 +22,7 @@ FORCE_SUB_CHANNEL3 = int(os.environ.get("FORCE_SUB_CHANNEL3", "-1002032097452"))
 FORCE_SUB_CHANNEL4 = int(os.environ.get("FORCE_SUB_CHANNEL4", "-1002127951847"))
 
 
-FILE_AUTO_DELETE = int(os.getenv("FILE_AUTO_DELETE", "3700")) # auto delete in seconds
+FILE_AUTO_DELETE = int(os.getenv("FILE_AUTO_DELETE", "3600")) # auto delete in seconds
 
 
 PORT = os.environ.get("PORT", "8080")
