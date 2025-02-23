@@ -15,6 +15,12 @@ from config import OWNER_ID, ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORC
 from pyrogram import Client, filters
 from config import OWNER_ID, ADMINS
 
+import asyncio
+from pyrogram import Client, filters
+from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
+from database.database import full_userbase, del_user
+from config import ADMINS, OWNER_ID
+
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
@@ -285,6 +291,60 @@ async def list_admins(client, message):
     
     admin_text = "👮‍♂️ **Here is the list of bot admins:**\n\n" + "\n".join(admins_list)
     await message.reply_text(admin_text, disable_web_page_preview=True)
+
+
+
+@Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
+async def forward_broadcast(client, message):
+    if not message.reply_to_message:
+        return await message.reply("❌ Use this command as a reply to the message you want to forward.")
+
+    query = await full_userbase()
+    forward_msg = message.reply_to_message
+    total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
+
+    pls_wait = await message.reply("<i>Forwarding message to all users... This may take some time.</i>")
+
+    for chat_id in query:
+        try:
+            sent_msg = await forward_msg.forward(chat_id)
+            successful += 1
+
+            # Try to pin the message
+            try:
+                await client.pin_chat_message(chat_id, sent_msg.id)
+            except ChatAdminRequired:
+                print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+
+        except FloodWait as e:
+            await asyncio.sleep(e.x)
+            sent_msg = await forward_msg.forward(chat_id)
+            successful += 1
+            try:
+                await client.pin_chat_message(chat_id, sent_msg.id)
+            except ChatAdminRequired:
+                print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+
+        except UserIsBlocked:
+            await del_user(chat_id)
+            blocked += 1
+        except InputUserDeactivated:
+            await del_user(chat_id)
+            deleted += 1
+        except Exception as e:
+            print(f"Error sending to {chat_id}: {e}")
+            unsuccessful += 1
+            continue
+
+    status = f"""<b><u>✅ Forward Broadcast Completed</u></b>
+
+<b>Total Users :</b> <code>{total}</code>
+<b>Successful :</b> <code>{successful}</code>
+<b>Blocked Users :</b> <code>{blocked}</code>
+<b>Deleted Accounts :</b> <code>{deleted}</code>
+<b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
+
+    return await pls_wait.edit(status)
 
 
 # Jishu Developer 
