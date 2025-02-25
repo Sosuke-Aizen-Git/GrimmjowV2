@@ -102,7 +102,8 @@ async def start_command(client: Client, message: Message):
             except:
                 pass
 
-k = await client.send_message(chat_id = message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+
+        k = await client.send_message(chat_id = message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
 
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
@@ -211,8 +212,7 @@ async def send_text(client: Bot, message: Message):
             except FloodWait as e:
                 await asyncio.sleep(e.x)
                 await broadcast_msg.copy(chat_id)
-
-successful += 1
+                successful += 1
             except UserIsBlocked:
                 await del_user(chat_id)
                 blocked += 1
@@ -285,9 +285,9 @@ async def list_admins(client, message):
             user = await client.get_users(admin_id)  # Fetch user details
             admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
         except Exception:
-            admin_name = f"{admin_id} (Bot not started)"  # If user data not found
+            admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
         
-        admins_list.append(f"{index}. {admin_name} ({admin_id})")
+        admins_list.append(f"{index}. {admin_name} (`{admin_id}`)")
     
     admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
     await message.reply_text(admin_text, disable_web_page_preview=True)
@@ -310,7 +310,7 @@ async def forward_broadcast(client, message):
             sent_msg = await forward_msg.forward(chat_id)
             successful += 1
 
-# Try to pin the message
+            # Try to pin the message
             try:
                 await client.pin_chat_message(chat_id, sent_msg.id)
             except ChatAdminRequired:
