@@ -283,7 +283,7 @@ async def list_admins(client, message):
     for index, admin_id in enumerate(unique_admins, start=1):
         try:
             user = await client.get_users(admin_id)  # Fetch user details
-            admin_name = f"[{user.first_name}](tg://openmessage?user_id={admin_id})"
+            admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
         except Exception:
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
         
