@@ -287,9 +287,9 @@ async def list_admins(client, message):
         except Exception:
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
         
-        admins_list.append(f"**{index}.** {admin_name} (`{admin_id}`)")
+        admins_list.append(f"{index}. {admin_name} (`{admin_id}`)")
     
-    admin_text = "👮‍♂️ **Here is the list of bot admins:**\n\n" + "\n".join(admins_list)
+    admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
     await message.reply_text(admin_text, disable_web_page_preview=True)
 
 
