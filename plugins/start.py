@@ -284,7 +284,7 @@ async def list_admins(client, message):
         try:
             user = await client.get_users(admin_id)  # Fetch user details
             await query.mesawait query.message.edit_text(sage.edit_text(
-                admin_name = f"[ <a href='https://tg://openmessage?user_id={admin_id}'>{user.first_name}</a>]")
+                admin_name = f"[ <a href='https://tg://openmessage?user_id={admin_id}'>{user.first_name}</a>]"))
         except Exception:
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
         
