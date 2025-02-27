@@ -1,22 +1,27 @@
 import asyncio, re, base64
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
-from config import FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4, ADMINS
+from config import FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, ADMINS, DB_URL, DB_NAME, OWNER_ID
 from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
 from pyrogram.errors import FloodWait
+import pymongo
+from bot import Bot
+from database.db_handler import get_force_sub_channel
 
+dbclient = pymongo.MongoClient(DB_URL)
+database = dbclient[DB_NAME]
+user_data = database['users']
 
-
-
+# Existing functions...
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
+    if not FORCE_SUB_CHANNEL_1:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_1, user_id = user_id)
     except UserNotParticipant:
         return False
 
@@ -25,15 +30,14 @@ async def is_subscribed(filter, client, update):
     else:
         return True
 
-
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL2:
+    if not FORCE_SUB_CHANNEL_2:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_2, user_id = user_id)
     except UserNotParticipant:
         return False
 
@@ -41,16 +45,15 @@ async def is_subscribed(filter, client, update):
         return False
     else:
         return True
-        
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL3:
+    if not FORCE_SUB_CHANNEL_3:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL3, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_3, user_id = user_id)
     except UserNotParticipant:
         return False
 
@@ -58,16 +61,15 @@ async def is_subscribed(filter, client, update):
         return False
     else:
         return True
-        
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL4:
+    if not FORCE_SUB_CHANNEL_4:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL4, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_4, user_id = user_id)
     except UserNotParticipant:
         return False
 
@@ -76,41 +78,39 @@ async def is_subscribed(filter, client, update):
     else:
         return True                
 
-
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
+    if not FORCE_SUB_CHANNEL_1:
         return True
-    if not FORCE_SUB_CHANNEL2:
+    if not FORCE_SUB_CHANNEL_2:
         return True
-    if not FORCE_SUB_CHANNEL3:
+    if not FORCE_SUB_CHANNEL_3:
         return True
-    if not FORCE_SUB_CHANNEL4:
+    if not FORCE_SUB_CHANNEL_4:
         return True    
     user_id = update.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_1, user_id = user_id)
     except UserNotParticipant:
         return False
 
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_2, user_id = user_id)
     except UserNotParticipant:
         return False
-    
+
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL3, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_3, user_id = user_id)
     except UserNotParticipant:
         return False
-    
+
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL4, user_id = user_id)
+        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_4, user_id = user_id)
     except UserNotParticipant:
         return False
     else:
         return True        
-        
 
 async def encode(string):
     string_bytes = string.encode("ascii")
@@ -118,14 +118,12 @@ async def encode(string):
     base64_string = (base64_bytes.decode("ascii")).strip("=")
     return base64_string
 
-
 async def decode(base64_string):
     base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
     base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
     string_bytes = base64.urlsafe_b64decode(base64_bytes) 
     string = string_bytes.decode("ascii")
     return string
-
 
 async def get_messages(client, message_ids):
     messages = []
@@ -148,7 +146,6 @@ async def get_messages(client, message_ids):
         total_messages += len(temb_ids)
         messages.extend(msgs)
     return messages
-
 
 async def get_message_id(client, message):
     if message.forward_from_chat:
@@ -174,7 +171,6 @@ async def get_message_id(client, message):
     else:
         return 0
 
-
 def get_readable_time(seconds: int) -> str:
     count = 0
     up_time = ""
@@ -196,13 +192,7 @@ def get_readable_time(seconds: int) -> str:
     up_time += ":".join(time_list)
     return up_time
 
-
 subscribed = filters.create(is_subscribed)
-       
-
-
-
-
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
