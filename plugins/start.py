@@ -21,6 +21,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, Chat
 from database.database import full_userbase, del_user
 from config import ADMINS, OWNER_ID
 
+from config import FILE_AUTO_DELETE
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
@@ -371,6 +372,12 @@ async def get_id(client: Bot, message: Message):
                 return
 
     await message.reply_text(f"User {user_name}'s ID: <code>{user_id}</code>", quote=True)
+
+@Bot.on_message(filters.command('autodel') & filters.private)
+@Bot.on_message(filters.command('autodel') & filters.group)
+async def autodel_command(client: Client, message: Message):
+    await message.reply_text(f"The current auto delete timer is set to {FILE_AUTO_DELETE} seconds.")
+
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
