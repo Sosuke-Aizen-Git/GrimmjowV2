@@ -347,6 +347,11 @@ async def forward_broadcast(client, message):
     return await pls_wait.edit(status)
 
 
+@Bot.on_message(filters.command('id') & filters.private)
+async def get_id(client: Bot, message: Message):
+    user_id = message.from_user.id
+    await message.reply_text(f"Your Telegram ID: <code>{user_id}</code>", quote=True)
+
 # Jishu Developer 
 # Don't Remove Credit 🥺
 # Telegram Channel @Madflix_Bots
