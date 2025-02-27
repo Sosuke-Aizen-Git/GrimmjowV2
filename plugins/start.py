@@ -39,7 +39,7 @@ async def start_command(client: Client, message: Message):
         except:
             pass
     text = message.text
-    if len(text)>7:
+    if len(text) > 7:
         try:
             base64_string = text.split(" ", 1)[1]
         except:
@@ -53,7 +53,7 @@ async def start_command(client: Client, message: Message):
             except:
                 return
             if start <= end:
-                ids = range(start,end+1)
+                ids = range(start, end + 1)
             else:
                 ids = []
                 i = start
@@ -67,20 +67,19 @@ async def start_command(client: Client, message: Message):
                 ids = [int(int(argument[1]) / abs(client.db_channel.id))]
             except:
                 return
-        temp_msg = await message.reply("Please Wait...")
+        temp_msg = await message.reply(f"Please Wait... Retrieving {len(ids)} files.")
         try:
             messages = await get_messages(client, ids)
         except:
             await message.reply_text("Something Went Wrong..!")
             return
         await temp_msg.delete()
-    
-        madflix_msgs = [] # List to keep track of sent messages
+
+        madflix_msgs = []  # List to keep track of sent messages
 
         for msg in messages:
-
             if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption = "" if not msg.caption else msg.caption.html, filename = msg.document.file_name)
+                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
             else:
                 caption = "" if not msg.caption else msg.caption.html
 
@@ -90,54 +89,48 @@ async def start_command(client: Client, message: Message):
                 reply_markup = None
 
             try:
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
-                # await asyncio.sleep(0.5)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
+
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
+
             except:
                 pass
 
-
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
-
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues)")
+        
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
-        
-        # for madflix_msg in madflix_msgs: 
-            # try:
-                # await madflix_msg.delete()
-                # await k.edit_text("Your Video / File Is Successfully Deleted ✅") 
-            # except:    
-                # pass 
 
         return
     else:
         reply_markup = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("😊 About Me", callback_data = "about"),
-                    InlineKeyboardButton("🔒 Close", callback_data = "close")
+                    InlineKeyboardButton("😊 About Me", callback_data="about"),
+                    InlineKeyboardButton("🔒 Close", callback_data="close")
                 ]
             ]
         )
         await message.reply_text(
-            text = START_MSG.format(
-                first = message.from_user.first_name,
-                last = message.from_user.last_name,
-                username = None if not message.from_user.username else '@' + message.from_user.username,
-                mention = message.from_user.mention,
-                id = message.from_user.id
+            text=START_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
             ),
-            reply_markup = reply_markup,
-            disable_web_page_preview = True,
-            quote = True
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+            quote=True
         )
         return
+    
+
+
 
     
 
