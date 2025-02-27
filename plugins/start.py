@@ -218,6 +218,7 @@ async def get_users(client: Bot, message: Message):
     await msg.edit(f"{len(users)} Users Are Using This Bot")
 
 @Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
+@Bot.on_message(filters.group & filters.command('broadcast') & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
         query = await full_userbase()
@@ -312,6 +313,7 @@ async def list_admins(client, message):
     await message.reply_text(admin_text, disable_web_page_preview=True)
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
+@Client.on_message(filters.group & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
 async def forward_broadcast(client, message):
     if not message.reply_to_message:
         return await message.reply("❌ Use this command as a reply to the message you want to forward.")
