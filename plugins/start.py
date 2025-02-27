@@ -10,6 +10,7 @@ from database.db_handler import get_force_sub_channel, refresh_db_handler
 from database.database import add_user, del_user, full_userbase, present_user
 from plugins.cbb import check_force_sub  # Import the check_force_sub function
 import pymongo
+from config import FILE_AUTO_DELETE
 
 dbclient = pymongo.MongoClient(DB_URL)
 database = dbclient[DB_NAME]
@@ -386,6 +387,16 @@ async def get_id(client: Bot, message: Message):
                 return
 
     await message.reply_text(f"User {user_name}'s ID: <code>{user_id}</code>", quote=True)
+
+# Add this import statement at the top if not already present
+from config import FILE_AUTO_DELETE
+
+# Add the following function in `start.py` to handle the /autodel command
+@Bot.on_message(filters.command('autodel') & filters.private)
+@Bot.on_message(filters.command('autodel') & filters.group)
+async def autodel_command(client: Client, message: Message):
+    await message.reply_text(f"The current auto delete timer is set to {FILE_AUTO_DELETE} seconds.")
+
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
