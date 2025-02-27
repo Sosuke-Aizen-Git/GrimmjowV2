@@ -348,9 +348,29 @@ async def forward_broadcast(client, message):
 
 
 @Bot.on_message(filters.command('id') & filters.private)
+@Bot.on_message(filters.command('id') & filters.group)
 async def get_id(client: Bot, message: Message):
-    user_id = message.from_user.id
-    await message.reply_text(f"Your Telegram ID: <code>{user_id}</code>", quote=True)
+    if message.reply_to_message:
+        user = message.reply_to_message.from_user
+        user_id = user.id
+        user_name = user.first_name
+    else:
+        parts = message.text.split(maxsplit=1)
+        if len(parts) == 1:
+            user = message.from_user
+            user_id = user.id
+            user_name = user.first_name
+        else:
+            username = parts[1].strip()
+            try:
+                user = await client.get_users(username)
+                user_id = user.id
+                user_name = user.first_name
+            except Exception as e:
+                await message.reply_text(f"User {username} not found.\nError: {e}")
+                return
+
+    await message.reply_text(f"User {user_name}'s ID: <code>{user_id}</code>", quote=True)
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
