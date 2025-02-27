@@ -2,34 +2,58 @@ import os, asyncio, humanize
 from pyrogram import Client, filters, __version__
 from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
-from bot import Bot
-from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE
-from helper_func import subscribed, encode, decode, get_messages
-from database.database import add_user, del_user, full_userbase, present_user
-
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from config import OWNER_ID, ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4
-
-from pyrogram import Client, filters
-from config import OWNER_ID, ADMINS
-
-import asyncio
-from pyrogram import Client, filters
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
-from database.database import full_userbase, del_user
-from config import ADMINS, OWNER_ID
+from bot import Bot
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME
+from helper_func import subscribed, encode, decode, get_messages
+from database.db_handler import get_force_sub_channel, refresh_db_handler
+from database.database import add_user, del_user, full_userbase, present_user
+from plugins.cbb import check_force_sub  # Import the check_force_sub function
+import pymongo
 
-from config import FILE_AUTO_DELETE
+dbclient = pymongo.MongoClient(DB_URL)
+database = dbclient[DB_NAME]
+user_data = database['users']
+
+invite_links_cache = {}
+
+async def refresh_database():
+    global dbclient, database, user_data
+    dbclient = pymongo.MongoClient(DB_URL)
+    database = dbclient[DB_NAME]
+    user_data = database['users']
+    return
+
+async def refresh_force_sub_channels():
+    global FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4
+    FORCE_SUB_CHANNEL_1 = get_force_sub_channel(1)
+    FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
+    FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
+    FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
+    await cache_invite_links()
+
+async def cache_invite_links():
+    global invite_links_cache
+    channels = [FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4]
+    for index, channel in enumerate(channels, start=1):
+        if channel:
+            try:
+                chat = await Bot.get_chat(chat_id=channel)
+                invite_links_cache[f'link{index}'] = chat.invite_link or await Bot.export_chat_invite_link(chat_id=channel)
+            except Exception as e:
+                print(f"Error generating invite link for {channel}: {e}")
+
+@Bot.on_message(filters.command('refresh') & filters.private & filters.user([OWNER_ID] + SUDO_USERS))
+@Bot.on_message(filters.command('refresh') & filters.group & filters.user([OWNER_ID] + SUDO_USERS))
+async def refresh_command(client, message):
+    await refresh_database()
+    await refresh_db_handler()
+    await refresh_force_sub_channels()
+    await message.reply_text("Database and force sub channels have been updated successfully with the latest changes.")
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
-
-
-
-
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 async def start_command(client: Client, message: Message):
@@ -40,7 +64,7 @@ async def start_command(client: Client, message: Message):
         except:
             pass
     text = message.text
-    if len(text)>7:
+    if len(text) > 7:
         try:
             base64_string = text.split(" ", 1)[1]
         except:
@@ -54,7 +78,7 @@ async def start_command(client: Client, message: Message):
             except:
                 return
             if start <= end:
-                ids = range(start,end+1)
+                ids = range(start, end + 1)
             else:
                 ids = []
                 i = start
@@ -75,13 +99,12 @@ async def start_command(client: Client, message: Message):
             await message.reply_text("Something Went Wrong..!")
             return
         await temp_msg.delete()
-    
-        madflix_msgs = [] # List to keep track of sent messages
+
+        madflix_msgs = []  # List to keep track of sent messages
 
         for msg in messages:
-
             if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption = "" if not msg.caption else msg.caption.html, filename = msg.document.file_name)
+                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
             else:
                 caption = "" if not msg.caption else msg.caption.html
 
@@ -91,63 +114,59 @@ async def start_command(client: Client, message: Message):
                 reply_markup = None
 
             try:
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
-                # await asyncio.sleep(0.5)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
+
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
+                madflix_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
                 madflix_msgs.append(madflix_msg)
-                
+
             except:
                 pass
 
-
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issues).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons).")
 
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
-        
-        # for madflix_msg in madflix_msgs: 
-            # try:
-                # await madflix_msg.delete()
-                # await k.edit_text("Your Video / File Is Successfully Deleted ✅") 
-            # except:    
-                # pass 
 
         return
     else:
         reply_markup = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("😊 About Me", callback_data = "about"),
-                    InlineKeyboardButton("🔒 Close", callback_data = "close")
+                    InlineKeyboardButton("😊 About Me", callback_data="about"),
+                    InlineKeyboardButton("🔒 Close", callback_data="close")
                 ]
             ]
         )
         await message.reply_text(
-            text = START_MSG.format(
-                first = message.from_user.first_name,
-                last = message.from_user.last_name,
-                username = None if not message.from_user.username else '@' + message.from_user.username,
-                mention = message.from_user.mention,
-                id = message.from_user.id
+            text=START_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
             ),
-            reply_markup = reply_markup,
-            disable_web_page_preview = True,
-            quote = True
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+            quote=True
         )
         return
 
-    
-
-
-
-    
-    
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
+    # Send "Please Wait..." message
+    temp_msg = await message.reply("Please Wait...")
+
+    # Refresh the invite links and force sub channels
+    await refresh_force_sub_channels()
+
+    client.invitelink = (await client.get_chat(FORCE_SUB_CHANNEL_1)).invite_link if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = (await client.get_chat(FORCE_SUB_CHANNEL_2)).invite_link if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = (await client.get_chat(FORCE_SUB_CHANNEL_3)).invite_link if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = (await client.get_chat(FORCE_SUB_CHANNEL_4)).invite_link if FORCE_SUB_CHANNEL_4 else None
+
     buttons = [
         [
             InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
@@ -162,37 +181,40 @@ async def not_joined(client: Client, message: Message):
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text = 'Try Again',
-                    url = f"https://t.me/{client.username}?start={message.command[1]}"
+                    text='Try Again',
+                    url=f"https://t.me/{client.username}?start={message.command[1]}"
                 )
             ]
         )
     except IndexError:
         pass
 
+    await temp_msg.delete()  # Delete the "Please Wait..." message
 
-    await message.reply(
-        text = FORCE_MSG.format(
-                first = message.from_user.first_name,
-                last = message.from_user.last_name,
-                username = None if not message.from_user.username else '@' + message.from_user.username,
-                mention = message.from_user.mention,
-                id = message.from_user.id
+    # Check if user has joined all force sub channels before sending force sub message
+    if not await check_force_sub(client, message.from_user.id):
+        await message.reply(
+            text=FORCE_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
             ),
-        reply_markup = InlineKeyboardMarkup(buttons),
-        quote = True,
-        disable_web_page_preview = True
-    )
+            reply_markup=InlineKeyboardMarkup(buttons),
+            quote=True,
+            disable_web_page_preview=True
+        )
+        return
 
-
+    # User has joined all channels, proceed with start command
+    await start_command(client, message)
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
-    msg = await client.send_message(chat_id=message.chat.id, text=f"Processing...")
+    msg = await client.send_message(chat_id=message.chat.id, text="Processing...")
     users = await full_userbase()
     await msg.edit(f"{len(users)} Users Are Using This Bot")
-
-
 
 @Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
@@ -204,7 +226,7 @@ async def send_text(client: Bot, message: Message):
         blocked = 0
         deleted = 0
         unsuccessful = 0
-        
+
         pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
         for chat_id in query:
             try:
@@ -224,7 +246,7 @@ async def send_text(client: Bot, message: Message):
                 unsuccessful += 1
                 pass
             total += 1
-        
+
         status = f"""<b><u>Broadcast Completed</u></b>
 
 <b>Total Users :</b> <code>{total}</code>
@@ -232,68 +254,61 @@ async def send_text(client: Bot, message: Message):
 <b>Blocked Users :</b> <code>{blocked}</code>
 <b>Deleted Accounts :</b> <code>{deleted}</code>
 <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
-        
+
         return await pls_wait.edit(status)
 
     else:
-        msg = await message.reply(f"Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
+        msg = await message.reply("Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
         await asyncio.sleep(8)
         await msg.delete()
 
-
 @Client.on_message(filters.command("fsubs") & filters.user([OWNER_ID] + ADMINS))
 async def force_subs(client, message):
-    channels = [FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4]
-    
+    channels = [FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4]
+
     buttons = []
     for channel in channels:
         if channel and str(channel).startswith("-100"):  # Ensure it's a valid channel ID
             try:
-                chat = await client.get_chat(channel)  # Fetch channel details
-                invite_link = await client.create_chat_invite_link(channel)
+                chat = await client.get_chat(chat_id=channel)  # Fetch channel details
+                invite_link = await client.create_chat_invite_link(chat_id=channel)
                 buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])  # Use channel name
             except Exception as e:
                 print(f"Error generating invite link for {channel}: {e}")
-    
+
     if not buttons:
         return await message.reply_text("No valid force subscription channels found!")
 
     reply_markup = InlineKeyboardMarkup(buttons)
     await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
 
-
-
-
 # Function to handle file deletion
 async def delete_files(messages, client, k):
     await asyncio.sleep(FILE_AUTO_DELETE)  # Wait for the duration specified in config.py
     for msg in messages:
-        try:
-            await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
-        except Exception as e:
-            print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
-    # await client.send_message(messages[0].chat.id, "Your Video / File Is Successfully Deleted ✅")
+        if msg is not None:  # Ensure msg is not None
+            try:
+                await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
+            except Exception as e:
+                print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
-
 
 @Client.on_message(filters.command("admins") & filters.user([OWNER_ID] + ADMINS))
 async def list_admins(client, message):
     unique_admins = list(set(ADMINS))  # Remove duplicate IDs
     admins_list = []
-    
+
     for index, admin_id in enumerate(unique_admins, start=1):
         try:
             user = await client.get_users(admin_id)  # Fetch user details
             admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
         except Exception:
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
-        
+
         admins_list.append(f"{index}. {admin_name} (`{admin_id}`)")
-    
+
     admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
     await message.reply_text(admin_text, disable_web_page_preview=True)
-
-
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
 async def forward_broadcast(client, message):
@@ -347,7 +362,6 @@ async def forward_broadcast(client, message):
 
     return await pls_wait.edit(status)
 
-
 @Bot.on_message(filters.command('id') & filters.private)
 @Bot.on_message(filters.command('id') & filters.group)
 async def get_id(client: Bot, message: Message):
@@ -372,12 +386,6 @@ async def get_id(client: Bot, message: Message):
                 return
 
     await message.reply_text(f"User {user_name}'s ID: <code>{user_id}</code>", quote=True)
-
-@Bot.on_message(filters.command('autodel') & filters.private)
-@Bot.on_message(filters.command('autodel') & filters.group)
-async def autodel_command(client: Client, message: Message):
-    await message.reply_text(f"The current auto delete timer is set to {FILE_AUTO_DELETE} seconds.")
-
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
