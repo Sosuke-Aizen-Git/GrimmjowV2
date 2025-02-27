@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-client = MongoClient("mongodb+srv://nitus1673:itachi@cluster0.b9uq1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+client = MongoClient("mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 db = client["sahil"]
 
 def get_force_sub_channel(index):
@@ -18,5 +18,5 @@ def set_force_sub_channel(index, new_channel_id):
 
 async def refresh_db_handler():
     global client, db
-    client = MongoClient("mongodb+srv://nitus1673:itachi@cluster0.b9uq1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = MongoClient("mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     db = client["sahil"]
