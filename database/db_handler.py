@@ -20,3 +20,16 @@ async def refresh_db_handler():
     global client, db
     client = MongoClient("mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     db = client["sahil"]
+
+def get_auto_delete_time():
+    doc = db.config.find_one({"_id": "auto_delete_time"})
+    if doc:
+        return doc.get("time", None)
+    return None
+
+def set_auto_delete_time(new_time):
+    db.config.update_one(
+        {"_id": "auto_delete_time"},
+        {"$set": {"time": new_time}},
+        upsert=True
+    )
