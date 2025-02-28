@@ -5,6 +5,8 @@ from config import OWNER_ID, SUDO_USERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_
 from database.db_handler import set_force_sub_channel, get_force_sub_channel
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import os
+from database.db_handler import set_auto_delete_time  # Import the function to set auto delete time
+
 
 @Bot.on_callback_query()
 async def cb_handler(client: Bot, query: CallbackQuery):
@@ -114,6 +116,27 @@ async def check_force_sub(client, user_id):
             except:
                 return False
     return True
+
+
+@Bot.on_message(filters.command("setautodel") & filters.user([OWNER_ID] + SUDO_USERS))
+async def set_auto_delete_time_command(client, message):
+    try:
+        command, new_auto_delete_time = message.text.split()
+        new_auto_delete_time = int(new_auto_delete_time)
+        
+        set_auto_delete_time(new_auto_delete_time)  # Update the auto delete time in the database
+        
+        # Log the new auto delete time
+        log_channel_id = -1002121888464
+        await client.send_message(log_channel_id, f"Auto delete time updated to {new_auto_delete_time} seconds \n\nPlease restart the bot to see the changes in action! /restart")
+        
+        await message.reply(f"Auto delete time successfully updated to {new_auto_delete_time} seconds \n\nPlease restart the bot to see the changes in action! /restart")
+        
+    except ValueError as e:
+        await message.reply(f"ValueError: {e}")
+    except Exception as e:
+        await message.reply(f"Exception: {e}")
+
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
