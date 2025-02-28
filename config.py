@@ -2,6 +2,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from database.db_handler import get_force_sub_channel
+from database.db_handler import get_auto_delete_time
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "7295673972:AAGz3L2ArpAd1YLx5frjGrl2oU2_oPL7fzY")
 API_ID = int(os.environ.get("API_ID", "20420188"))
@@ -17,7 +18,8 @@ FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
 FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
 FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
 
-FILE_AUTO_DELETE = int(os.getenv("FILE_AUTO_DELETE", "3600"))  # auto delete in seconds
+
+FILE_AUTO_DELETE = get_auto_delete_time() or 600  # default to 600 seconds if not set 
 
 PORT = os.environ.get("PORT", "8080")
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
