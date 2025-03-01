@@ -57,6 +57,7 @@ jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
+@Bot.on_message(filters.command('start') & filters.group & subscribed)
 async def start_command(client: Client, message: Message):
     id = message.from_user.id
     if not await present_user(id):
@@ -126,7 +127,7 @@ async def start_command(client: Client, message: Message):
             except:
                 pass
 
-        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons). \n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons).")
 
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
@@ -156,6 +157,7 @@ async def start_command(client: Client, message: Message):
         return
 
 @Bot.on_message(filters.command('start') & filters.private)
+@Bot.on_message(filters.command('start') & filters.group)
 async def not_joined(client: Client, message: Message):
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
@@ -218,7 +220,6 @@ async def get_users(client: Bot, message: Message):
     await msg.edit(f"{len(users)} Users Are Using This Bot")
 
 @Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
-@Bot.on_message(filters.group & filters.command('broadcast') & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
         query = await full_userbase()
@@ -307,13 +308,12 @@ async def list_admins(client, message):
         except Exception:
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
 
-        admins_list.append(f"{index}. {admin_name} (`{admin_id}`)")
+        admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
 
     admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
     await message.reply_text(admin_text, disable_web_page_preview=True)
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
-@Client.on_message(filters.group & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
 async def forward_broadcast(client, message):
     if not message.reply_to_message:
         return await message.reply("❌ Use this command as a reply to the message you want to forward.")
