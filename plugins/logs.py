@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from config import OWNER_ID, SUDO_USERS
 
 @Client.on_message(filters.command("logs") & filters.private)
+@Client.on_message(filters.command("logs") & filters.group)
 async def send_logs(client, message):
     user_id = message.from_user.id
     if user_id == OWNER_ID or user_id in SUDO_USERS:
