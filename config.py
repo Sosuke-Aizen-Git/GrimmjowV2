@@ -1,14 +1,13 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from database.db_handler import get_force_sub_channel
-from database.db_handler import get_auto_delete_time
+from database.db_handler import get_force_sub_channel, get_auto_delete_time, get_admins
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "7295673972:AAGz3L2ArpAd1YLx5frjGrl2oU2_oPL7fzY")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7096809834:AAEhvqWtBXMqjMhWbYFPOAMywtEwS9gQ15E")
 API_ID = int(os.environ.get("API_ID", "20420188"))
 API_HASH = os.environ.get("API_HASH", "ac372bd945f5773afe0b714c6429039b")
 OWNER_ID = int(os.environ.get("OWNER_ID", "1993048420"))
-DB_URL = os.environ.get("DB_URL", "mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+DB_URL = os.environ.get("DB_URL", "mongodb+srv://nitus1673:itachi@cluster0.b9uq1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 DB_NAME = os.environ.get("DB_NAME", "sahil")
 
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002121888464"))
@@ -18,26 +17,26 @@ FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
 FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
 FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
 
+FILE_AUTO_DELETE = get_auto_delete_time() or 600  # default to 600 seconds if not set  # auto delete in seconds
 
-FILE_AUTO_DELETE = get_auto_delete_time() or 600  # default to 600 seconds if not set 
-
-PORT = os.environ.get("PORT", "8080")
+PORT = os.environ.get("PORT", "8081")
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 
 try:
-    ADMINS = [6848088376]
-    for x in (os.environ.get("ADMINS", "1993048420 5743248220 1214348787 6297086120").split()):
-        ADMINS.append(int(x))
-except ValueError:
-    raise Exception("Your Admins list does not contain valid integers.")
-
-try:
-    SUDO_USERS = []
+    SUDO_USERS = [1993048420, 5743248220, 1214348787]
     for x in (os.environ.get("SUDO_USERS", "1993048420 5743248220 1214348787").split()):
         SUDO_USERS.append(int(x))
 except ValueError:
     raise Exception("Your SUDO_USERS list does not contain valid integers.")
 
+ADMINS = [OWNER_ID] + SUDO_USERS
+
+try:
+    admin_env = os.environ.get("ADMINS", " ".join(map(str, get_admins())))
+    for x in admin_env.split():
+        ADMINS.append(int(x))
+except ValueError:
+    raise Exception("Your Admins list does not contain valid integers.")
 
 CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
 PROTECT_CONTENT = True if os.environ.get('PROTECT_CONTENT', "False") == "True" else False
@@ -72,9 +71,3 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 def LOGGER(name: str) -> logging.Logger:
     return logging.getLogger(name)
-
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
