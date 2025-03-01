@@ -33,3 +33,22 @@ def set_auto_delete_time(new_time):
         {"$set": {"time": new_time}},
         upsert=True
     )
+
+def add_admin(user_id: int):
+    db.config.update_one(
+        {"_id": "admins"},
+        {"$addToSet": {"admin_ids": user_id}},
+        upsert=True
+    )
+
+def remove_admin(user_id: int):
+    db.config.update_one(
+        {"_id": "admins"},
+        {"$pull": {"admin_ids": user_id}}
+    )
+
+def get_admins():
+    doc = db.config.find_one({"_id": "admins"})
+    if doc:
+        return doc.get("admin_ids", [])
+    return []
