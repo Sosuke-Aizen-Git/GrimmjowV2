@@ -5,15 +5,27 @@ from config import OWNER_ID, SUDO_USERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_
 from database.db_handler import set_force_sub_channel, get_force_sub_channel
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import os
+import signal
+import sys
 from database.db_handler import set_auto_delete_time  # Import the function to set auto delete time
+from database.db_handler import add_admin, remove_admin, get_admins
+from utils import update_saved_button_state  # Import the function
 
+# Function to redeploy the bot
+def redeploy_bot():
+    os.system("git pull")
+    os.execv(sys.executable, ['python3'] + sys.argv)
+
+# Global variable to store the message and chat ID for saving state
+saving_message = None
 
 @Bot.on_callback_query()
 async def cb_handler(client: Bot, query: CallbackQuery):
+    global saving_message
     data = query.data
     if data == "about":
         await query.message.edit_text(
-            text = f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://pyrogram.org'>Pyrogram</a> v{__version__}",
+            text = f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://docs.pyrogram.org/'>Pyrogram</a> \n<b>📡 Hosted On :</b> <a href='https://heroku.com'>Heroku</a>",
             disable_web_page_preview = True,
             reply_markup = InlineKeyboardMarkup(
                 [
@@ -29,6 +41,22 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             await query.message.reply_to_message.delete()
         except:
             pass
+    elif data == "save":
+        saving_message = query.message
+        await query.message.edit_reply_markup(
+            InlineKeyboardMarkup([[InlineKeyboardButton("💾 Saving...", callback_data="saving")]])
+        )
+        os.kill(os.getpid(), signal.SIGINT)
+        redeploy_bot()
+    elif data == "saving":
+        user_id = query.from_user.id
+        if user_id == OWNER_ID or user_id in SUDO_USERS:
+            await query.message.edit_reply_markup(
+                InlineKeyboardMarkup([[InlineKeyboardButton("✅ Saved", callback_data="saved")]])
+            )
+        await query.answer()  # Answer the callback query to stop the loading animation
+
+# Add the rest of your functions here
 
 @Bot.on_message(filters.command("add_fsub1") & filters.user([OWNER_ID] + SUDO_USERS))
 async def add_fsub1(client, message):
@@ -41,7 +69,10 @@ async def add_fsub1(client, message):
         log_channel_id = -1002121888464
         await client.send_message(log_channel_id, f"Force Sub Channel 1 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
-        await message.reply(f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot as admin with invite users permission in your force sub channel otherwise force sub will not work properly!.")
+        await message.reply(
+            f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
 
     except ValueError as e:
         await message.reply(f"ValueError: {e}")
@@ -59,7 +90,10 @@ async def add_fsub2(client, message):
         log_channel_id = -1002121888464
         await client.send_message(log_channel_id, f"Force Sub Channel 2 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
-        await message.reply(f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot as admin with invite users permission in your force sub channel otherwise force sub will not work properly!.")
+        await message.reply(
+            f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
 
     except ValueError as e:
         await message.reply(f"ValueError: {e}")
@@ -77,7 +111,10 @@ async def add_fsub3(client, message):
         log_channel_id = -1002121888464
         await client.send_message(log_channel_id, f"Force Sub Channel 3 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
-        await message.reply(f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot as admin with invite users permission in your force sub channel otherwise force sub will not work properly!.")
+        await message.reply(
+            f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
 
     except ValueError as e:
         await message.reply(f"ValueError: {e}")
@@ -95,7 +132,10 @@ async def add_fsub4(client, message):
         log_channel_id = -1002121888464
         await client.send_message(log_channel_id, f"Force Sub Channel 4 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
-        await message.reply(f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot as admin with invite users permission in your force sub channel otherwise force sub will not work properly!.")
+        await message.reply(
+            f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
 
     except ValueError as e:
         await message.reply(f"ValueError: {e}")
@@ -117,7 +157,6 @@ async def check_force_sub(client, user_id):
                 return False
     return True
 
-
 @Bot.on_message(filters.command("setautodel") & filters.user([OWNER_ID] + SUDO_USERS))
 async def set_auto_delete_time_command(client, message):
     try:
@@ -130,13 +169,62 @@ async def set_auto_delete_time_command(client, message):
         log_channel_id = -1002121888464
         await client.send_message(log_channel_id, f"Auto delete time updated to {new_auto_delete_time} seconds \n\nPlease restart the bot to see the changes in action! /restart")
         
-        await message.reply(f"Auto delete time successfully updated to {new_auto_delete_time} seconds \n\nPlease restart the bot to see the changes in action! /restart")
+        await message.reply(
+            f"Auto delete time successfully updated to {new_auto_delete_time} seconds \n\nPlease restart the bot to see the changes in action! /restart",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
         
     except ValueError as e:
         await message.reply(f"ValueError: {e}")
     except Exception as e:
         await message.reply(f"Exception: {e}")
 
+@Bot.on_message(filters.command("addadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def add_admin_command(client, message):
+    try:
+        command, user_identifier = message.text.split()
+        if user_identifier.isdigit():
+            user_id = int(user_identifier)
+        else:
+            user = await client.get_users(user_identifier)
+            user_id = user.id
+
+        add_admin(user_id)
+        await refresh_admins_list()
+        await message.reply(
+            f"Admin {user_identifier} added successfully.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
+
+@Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def remove_admin_command(client, message):
+    try:
+        command, user_identifier = message.text.split()
+        if user_identifier.isdigit():
+            user_id = int(user_identifier)
+        else:
+            user = await client.get_users(user_identifier)
+            user_id = user.id
+
+        admins = get_admins()
+        if user_id not in admins:
+            await message.reply(f"Admin {user_identifier} not found.")
+            return
+
+        remove_admin(user_id)
+        await refresh_admins_list()
+        await message.reply(
+            f"Admin {user_identifier} removed successfully.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
+        )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
+
+async def refresh_admins_list():
+    global ADMINS
+    ADMINS = get_admins()
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
