@@ -3,7 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from database.db_handler import get_force_sub_channel, get_auto_delete_time, get_admins
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "7096809834:AAEhvqWtBXMqjMhWbYFPOAMywtEwS9gQ15E")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7295673972:AAGz3L2ArpAd1YLx5frjGrl2oU2_oPL7fzY")
 API_ID = int(os.environ.get("API_ID", "20420188"))
 API_HASH = os.environ.get("API_HASH", "ac372bd945f5773afe0b714c6429039b")
 OWNER_ID = int(os.environ.get("OWNER_ID", "1993048420"))
