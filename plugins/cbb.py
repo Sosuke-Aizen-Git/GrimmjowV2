@@ -10,6 +10,7 @@ import sys
 from database.db_handler import set_auto_delete_time  # Import the function to set auto delete time
 from database.db_handler import add_admin, remove_admin, get_admins
 from utils import update_saved_button_state  # Import the function
+from asyncio import sleep  # Import sleep for the auto-delete functionality
 
 # Function to redeploy the bot
 def redeploy_bot():
@@ -25,7 +26,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     data = query.data
     if data == "about":
         await query.message.edit_text(
-            text = f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://docs.pyrogram.org/'>Pyrogram</a> \n<b>📡 Hosted On :</b> <a href='https://heroku.com'>Heroku</a>",
+            text = f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://pyrogram.org'>Pyrogram {__version__}</a> \n<b>🚀 Server :</b> <a href='https://heroku.com'>Heroku</a> \n<b>📢 Channel :</b> <a href='https://t.me/Madflix_Bots'>Madflix Botz</a> \n<b>👨‍💻 Developer :</b> <a href='tg://user?id={OWNER_ID}'>Jishu Developer</a>",
             disable_web_page_preview = True,
             reply_markup = InlineKeyboardMarkup(
                 [
@@ -41,6 +42,15 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             await query.message.reply_to_message.delete()
         except:
             pass
+        
+        # Send the close message and delete it after 10 seconds
+        close_message = await client.send_message(
+            chat_id=query.message.chat.id,
+            text=f"close by {query.from_user.mention}"
+        )
+        await sleep(10)
+        await close_message.delete()
+        
     elif data == "save":
         saving_message = query.message
         await query.message.edit_reply_markup(
@@ -70,7 +80,7 @@ async def add_fsub1(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 1 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -91,7 +101,7 @@ async def add_fsub2(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 2 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -112,7 +122,7 @@ async def add_fsub3(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 3 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -133,7 +143,7 @@ async def add_fsub4(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 4 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel.",
+            f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
