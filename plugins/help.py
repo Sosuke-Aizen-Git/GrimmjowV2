@@ -1,5 +1,4 @@
 from pyrogram import filters
-from bot import Bot
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from plugins.cbb import cb_handler  # Import cb_handler from cbb.py
 
