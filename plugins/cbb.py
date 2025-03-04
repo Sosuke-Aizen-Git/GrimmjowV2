@@ -76,7 +76,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         await close_message.delete()
     
     elif data in ["get_link", "broadcast", "users", "fsub", "dev"]:
-        await query.answer("Under development")
+        await query.answer("Under development", show_alert=True)
     
     elif data == "save":
         saving_message = query.message
