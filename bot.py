@@ -10,6 +10,10 @@ import pyrogram.utils
 from utils import update_saved_button_state  # Import the function
 import asyncio  # Import asyncio for sleep
 from plugins import logs
+from flask import Flask, jsonify
+from threading import Thread
+import os
+
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
@@ -128,6 +132,49 @@ class Bot(Client):
     async def stop(self, *args):
         await super().stop()
         self.LOGGER(__name__).info("Bot Stopped...")
+
+# Existing imports and code...
+
+# Create Flask app
+flask_app = Flask(__name__)
+
+@flask_app.route('/uptime', methods=['GET'])
+def uptime():
+    return jsonify({"status": "ok"}), 200
+
+def run_flask():
+    flask_app.run(host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", 5000)))
+
+class Bot(Client):
+    # Existing code...
+    
+    async def start(self):
+        global saving_message  # Ensure saving_message is accessible
+        await super().start()
+        usr_bot_me = await self.get_me()
+        self.uptime = datetime.now()
+
+        # Existing initialization code...
+
+        # Start Flask app in a new thread
+        Thread(target=run_flask).start()
+
+        # Existing web-response setup...
+        # app = web.AppRunner(await web_server())
+        # await app.setup()
+        # bind_address = "0.0.0.0"
+        # await web.TCPSite(app, bind_address, PORT).start()
+
+        # Call the update_saved_button_state function after the bot starts
+        await update_saved_button_state(saving_message)
+
+    async def stop(self, *args):
+        await super().stop()
+        self.LOGGER(__name__).info("Bot Stopped...")
+
+if __name__ == '__main__':
+    bot = Bot()
+    bot.run()
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
