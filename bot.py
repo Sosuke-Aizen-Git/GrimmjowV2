@@ -107,8 +107,7 @@ class Bot(Client):
         try:
             db_channel = await self.get_chat(CHANNEL_ID)
             self.db_channel = db_channel
-            hey = await self.send_message(chat_id=db_channel.id, text="Hey 🖐")
-            asyncio.create_task(self.delete_message_after_delay(CHANNEL_ID, hey.id, 30))
+            await self.send_message(chat_id=db_channel.id, text="Hey 🖐")
         except Exception as e:
             self.LOGGER(__name__).warning(e)
             self.LOGGER(__name__).warning(f"Make Sure Bot Is Admin In DB Channel, And Double Check The CHANNEL_ID Value, Current Value: {CHANNEL_ID}")
