@@ -283,8 +283,12 @@ async def force_subs(client, message):
     if not buttons:
         return await message.reply_text("No valid force subscription channels found!")
 
+    # Add close button to the reply markup
+    buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
+
     reply_markup = InlineKeyboardMarkup(buttons)
     await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
+
 
 # Function to handle file deletion
 async def delete_files(messages, client, k):
@@ -312,7 +316,12 @@ async def list_admins(client, message):
         admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
 
     admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
-    await message.reply_text(admin_text, disable_web_page_preview=True)
+
+    # Add close button to the reply markup
+    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
+
+    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
 async def forward_broadcast(client, message):
