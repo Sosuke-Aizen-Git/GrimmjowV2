@@ -41,7 +41,7 @@ async def help_command(client, message):
     # Send the help message with an attached image and inline buttons
     await client.send_photo(
         chat_id=message.chat.id,
-        photo="https://litter.catbox.moe/21bhag.jpg",  # Replace with the path to your image
+        photo=["https://litter.catbox.moe/21bhag.jpg", "https://litter.catbox.moe/8ngis1.jpg"],  # Replace with the path to your image
         caption="Here are the available commands:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
