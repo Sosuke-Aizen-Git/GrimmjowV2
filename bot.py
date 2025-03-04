@@ -9,6 +9,7 @@ from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SU
 import pyrogram.utils
 from utils import update_saved_button_state
 import asyncio
+from asyncio import sleep
 from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
@@ -122,15 +123,15 @@ class Bot(Client):
         saving_message = await self.send_message(chat_id=CHANNEL_ID, text="Bot restarted successfully.")
         
         # Schedule message deletion after 30 seconds
-        asyncio.create_task(self.delete_message_after_delay(CHANNEL_ID, saving_message.message_id, 30))
+        asyncio.create_task(self.delete_message_after_delay(CHANNEL_ID, saving_message.id, 30))
 
         # Notify all sudo users and the owner that changes are saved
-        #admin_message = "All changes are saved."
-        #for user in SUDO_USERS + [OWNER_ID]:
-            #try:
-                #await self.send_message(chat_id=user, text=admin_message)
-            #except Exception as e:
-                #self.LOGGER(__name__).warning(f"Failed to send message to user {user}: {e}")
+        admin_message = "All changes are saved."
+        for user in SUDO_USERS + [OWNER_ID]:
+            try:
+                await self.send_message(chat_id=user, text=admin_message)
+            except Exception as e:
+                self.LOGGER(__name__).warning(f"Failed to send message to user {user}: {e}")
 
         # Start Flask app in a new thread
         Thread(target=run_flask).start()
@@ -145,7 +146,7 @@ class Bot(Client):
         await update_saved_button_state(saving_message)
 
     async def delete_message_after_delay(self, chat_id, message_id, delay):
-        await asyncio.sleep(delay)
+        await sleep(delay)
         await self.delete_messages(chat_id, message_id)
 
     async def stop(self, *args):
