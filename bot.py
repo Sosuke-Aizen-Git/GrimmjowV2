@@ -126,12 +126,6 @@ class Bot(Client):
         asyncio.create_task(self.delete_message_after_delay(CHANNEL_ID, saving_message.id, 30))
 
         # Notify all sudo users and the owner that changes are saved
-        admin_message = "All changes are saved."
-        for user in SUDO_USERS + [OWNER_ID]:
-            try:
-                await self.send_message(chat_id=user, text=admin_message)
-            except Exception as e:
-                self.LOGGER(__name__).warning(f"Failed to send message to user {user}: {e}")
 
         # Start Flask app in a new thread
         Thread(target=run_flask).start()
