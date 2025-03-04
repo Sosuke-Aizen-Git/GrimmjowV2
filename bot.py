@@ -14,10 +14,7 @@ from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
 import os
-
-# Import help.py
-from plugins.help import help_command
-from plugins.cbb import cb_handler  # Import cb_handler for close button functionality
+from plugins.register_handlers import register_handlers  # Import the register_handlers function
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
@@ -144,6 +141,9 @@ class Bot(Client):
 
         # Call the update_saved_button_state function after the bot starts
         await update_saved_button_state(saving_message)
+
+        # Register handlers
+        register_handlers(self)
 
     async def delete_message_after_delay(self, chat_id, message_id, delay):
         await sleep(delay)
