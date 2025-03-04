@@ -20,19 +20,44 @@ def redeploy_bot():
 # Global variable to store the message and chat ID for saving state
 saving_message = None
 
+@Bot.on_message(filters.command("help"))
+async def help_command(client, message):
+    # Define the inline keyboard buttons
+    buttons = [
+        [
+            InlineKeyboardButton("Get Link", callback_data="get_link"),
+            InlineKeyboardButton("Broadcast", callback_data="broadcast"),
+            InlineKeyboardButton("Users", callback_data="users")
+        ],
+        [
+            InlineKeyboardButton("FSub", callback_data="fsub"),
+            InlineKeyboardButton("Dev", callback_data="dev")
+        ],
+        [
+            InlineKeyboardButton("Close", callback_data="close")
+        ]
+    ]
+
+    # Send the help message with an attached image and inline buttons
+    await client.send_photo(
+        chat_id=message.chat.id,
+        photo="path/to/your/image.jpg",  # Replace with the path to your image
+        caption="Here are the available commands:",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
 @Bot.on_callback_query()
 async def cb_handler(client: Bot, query: CallbackQuery):
     global saving_message
     data = query.data
+    
     if data == "about":
         await query.message.edit_text(
-            text = f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://pyrogram.org'>Pyrogram {__version__}</a> \n<b>🚀 Server :</b> <a href='https://heroku.com'>Heroku</a> \n<b>📢 Channel :</b> <a href='https://t.me/Animes_Station'>Anime Station</a> \n<b>👨‍💻 Developer :</b> <a href='tg://openmessage?user_id={OWNER_ID}'>YES I'M!</a>",
-            disable_web_page_preview = True,
-            reply_markup = InlineKeyboardMarkup(
+            text=f"<b>🤖 My Name :</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a> \n<b>📝 Language :</b> <a href='https://python.org'>Python 3</a> \n<b>📚 Library :</b> <a href='https://github.com/pyrogram/pyrogram'>Pyrogram</a>",
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup(
                 [
-                    [
-                        InlineKeyboardButton("🔐 Close", callback_data = "close")
-                    ]
+                    [InlineKeyboardButton("🔐 Close", callback_data="close")]
                 ]
             )
         )
@@ -43,14 +68,16 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         except:
             pass
         
-        # Send the close message and delete it after 10 seconds
         close_message = await client.send_message(
             chat_id=query.message.chat.id,
             text=f"close by {query.from_user.mention}"
         )
         await sleep(10)
         await close_message.delete()
-        
+    
+    elif data in ["get_link", "broadcast", "users", "fsub", "dev"]:
+        await query.answer("Under development")
+    
     elif data == "save":
         saving_message = query.message
         await query.message.edit_reply_markup(
@@ -80,7 +107,7 @@ async def add_fsub1(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 1 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
+            f"Force Sub Channel 1 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel and have given it admin rights.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -101,7 +128,7 @@ async def add_fsub2(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 2 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
+            f"Force Sub Channel 2 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel and have given it admin rights.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -122,7 +149,7 @@ async def add_fsub3(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 3 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
+            f"Force Sub Channel 3 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel and have given it admin rights.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
@@ -143,7 +170,7 @@ async def add_fsub4(client, message):
         await client.send_message(log_channel_id, f"Force Sub Channel 4 updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart")
 
         await message.reply(
-            f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel with appropriate permissions.",
+            f"Force Sub Channel 4 successfully updated to {new_channel_id} \n\nPlease restart the bot to see the changes in action! /restart \n\nNote: Make sure you have added the bot to the new channel and have given it admin rights.",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💾 Save", callback_data="save")]])  # Added Save button here
         )
 
