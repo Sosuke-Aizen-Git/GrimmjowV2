@@ -24,8 +24,7 @@ saving_message = None
 # List of photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
-    "https://litter.catbox.moe/8kf2n6.jpg",
-    "https://litter.catbox.moe/9fjg3r.jpg",
+    "https://litter.catbox.moe/8ngis1.jpg",
     # Add more photo URLs as needed
 ]
 
