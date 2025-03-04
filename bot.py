@@ -1,24 +1,33 @@
 from aiohttp import web
 from plugins import web_server
 import pyromod.listen
-from pyrogram import Client  # Ensure Client is imported from pyrogram
+from pyrogram import Client
 from pyrogram.enums import ParseMode
 import sys
 from datetime import datetime
 from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT, ADMINS, SUDO_USERS, OWNER_ID
 import pyrogram.utils
-from utils import update_saved_button_state  # Import the function
-import asyncio  # Import asyncio for sleep
+from utils import update_saved_button_state
+import asyncio
 from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
 import os
 
-
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
 # Define saving_message as a global variable
 saving_message = None
+
+# Create Flask app
+flask_app = Flask(__name__)
+
+@flask_app.route('/uptime', methods=['GET'])
+def uptime():
+    return jsonify({"status": "ok"}), 200
+
+def run_flask():
+    flask_app.run(host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", 5000)))
 
 class Bot(Client):
     def __init__(self):
@@ -48,7 +57,7 @@ class Bot(Client):
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 1!")
-                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_1 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_1}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_1 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel 1 Value: {FORCE_SUB_CHANNEL_1}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -62,7 +71,7 @@ class Bot(Client):
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 2!")
-                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_2 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_2}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_2 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel 2 Value: {FORCE_SUB_CHANNEL_2}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -76,7 +85,7 @@ class Bot(Client):
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 3!")
-                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_3 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_3}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_3 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel 3 Value: {FORCE_SUB_CHANNEL_3}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -90,7 +99,7 @@ class Bot(Client):
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 4!")
-                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_4 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_4}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_4 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel 4 Value: {FORCE_SUB_CHANNEL_4}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -120,50 +129,14 @@ class Bot(Client):
             except Exception as e:
                 self.LOGGER(__name__).warning(f"Failed to send message to user {user}: {e}")
 
+        # Start Flask app in a new thread
+        Thread(target=run_flask).start()
+
         # web-response
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
         await web.TCPSite(app, bind_address, PORT).start()
-
-        # Call the update_saved_button_state function after the bot starts
-        await update_saved_button_state(saving_message)
-
-    async def stop(self, *args):
-        await super().stop()
-        self.LOGGER(__name__).info("Bot Stopped...")
-
-# Existing imports and code...
-
-# Create Flask app
-flask_app = Flask(__name__)
-
-@flask_app.route('/uptime', methods=['GET'])
-def uptime():
-    return jsonify({"status": "ok"}), 200
-
-def run_flask():
-    flask_app.run(host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", 5000)))
-
-class Bot(Client):
-    # Existing code...
-    
-    async def start(self):
-        global saving_message  # Ensure saving_message is accessible
-        await super().start()
-        usr_bot_me = await self.get_me()
-        self.uptime = datetime.now()
-
-        # Existing initialization code...
-
-        # Start Flask app in a new thread
-        Thread(target=run_flask).start()
-
-        # Existing web-response setup...
-        # app = web.AppRunner(await web_server())
-        # await app.setup()
-        # bind_address = "0.0.0.0"
-        # await web.TCPSite(app, bind_address, PORT).start()
 
         # Call the update_saved_button_state function after the bot starts
         await update_saved_button_state(saving_message)
