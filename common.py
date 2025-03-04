@@ -1,6 +1,6 @@
 from pyrogram import Client, __version__
 from pyrogram.enums import ParseMode
-from config.py import BOT_TOKEN, API_ID, API_HASH, TG_BOT_WORKERS
+from config import BOT_TOKEN, API_ID, API_HASH, TG_BOT_WORKERS
 class Bot(Client):
     def __init__(self, api_hash, api_id, bot_token, tg_bot_workers, logger):
         super().__init__(
