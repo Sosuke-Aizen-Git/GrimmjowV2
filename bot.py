@@ -1,14 +1,16 @@
 from aiohttp import web
 from plugins import web_server
 import pyromod.listen
-from datetime import datetime
-from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT
-import pyrogram.utils
+from pyrogram import Client
+from pyrogram.enums import ParseMode
 import sys
-from common import Bot  # Import the Bot from common module
+from datetime import datetime
+from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT, ADMINS, SUDO_USERS, OWNER_ID
+import pyrogram.utils
 from utils import update_saved_button_state
 import asyncio
 from asyncio import sleep
+from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
 import os
@@ -28,7 +30,18 @@ def uptime():
 def run_flask():
     flask_app.run(host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", 5000)))
 
-class Bot(Bot):  # Inherit from the common Bot class
+class Bot(Client):
+    def __init__(self):
+        super().__init__(
+            name="Bot",
+            api_hash=API_HASH,
+            api_id=API_ID,
+            plugins={"root": "plugins"},
+            workers=TG_BOT_WORKERS,
+            bot_token=BOT_TOKEN
+        )
+        self.LOGGER = LOGGER
+
     async def start(self):
         global saving_message  # Ensure saving_message is accessible
         await super().start()
@@ -45,7 +58,7 @@ class Bot(Bot):  # Inherit from the common Bot class
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 1!")
-                self.LOGGER(__name__).warning(f"Please Double Check The FORCE_SUB_CHANNEL_1 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_1}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_1 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_1}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -59,7 +72,7 @@ class Bot(Bot):  # Inherit from the common Bot class
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 2!")
-                self.LOGGER(__name__).warning(f"Please Double Check The FORCE_SUB_CHANNEL_2 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_2}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_2 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_2}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -73,7 +86,7 @@ class Bot(Bot):  # Inherit from the common Bot class
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 3!")
-                self.LOGGER(__name__).warning(f"Please Double Check The FORCE_SUB_CHANNEL_3 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_3}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_3 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_3}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -87,7 +100,7 @@ class Bot(Bot):  # Inherit from the common Bot class
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
                 self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 4!")
-                self.LOGGER(__name__).warning(f"Please Double Check The FORCE_SUB_CHANNEL_4 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL_4}")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_4 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_4}")
                 self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
                 sys.exit()
 
@@ -137,7 +150,7 @@ class Bot(Bot):  # Inherit from the common Bot class
         self.LOGGER(__name__).info("Bot Stopped...")
 
 if __name__ == '__main__':
-    bot = Bot(api_hash=API_HASH, api_id=API_ID, bot_token=BOT_TOKEN, tg_bot_workers=TG_BOT_WORKERS, logger=LOGGER)
+    bot = Bot()
     bot.run()
 
 # Jishu Developer 
