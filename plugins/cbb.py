@@ -11,6 +11,7 @@ from database.db_handler import set_auto_delete_time  # Import the function to s
 from database.db_handler import add_admin, remove_admin, get_admins
 from utils import update_saved_button_state  # Import the function
 from asyncio import sleep  # Import sleep for the auto-delete functionality
+import random  # Import random to select a random photo
 
 # Function to redeploy the bot
 def redeploy_bot():
@@ -19,6 +20,14 @@ def redeploy_bot():
 
 # Global variable to store the message and chat ID for saving state
 saving_message = None
+
+# List of photo URLs
+photos = [
+    "https://litter.catbox.moe/21bhag.jpg",
+    "https://litter.catbox.moe/8kf2n6.jpg",
+    "https://litter.catbox.moe/9fjg3r.jpg",
+    # Add more photo URLs as needed
+]
 
 @Bot.on_message(filters.command("help"))
 async def help_command(client, message):
@@ -38,10 +47,13 @@ async def help_command(client, message):
         ]
     ]
 
-    # Send the help message with an attached image and inline buttons
+    # Select a random photo from the list
+    random_photo = random.choice(photos)
+
+    # Send the help message with a random photo and inline buttons
     await client.send_photo(
         chat_id=message.chat.id,
-        photo=["https://litter.catbox.moe/21bhag.jpg", "https://litter.catbox.moe/8ngis1.jpg"],  # Replace with the path to your image
+        photo=random_photo,
         caption="Here are the available commands:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
