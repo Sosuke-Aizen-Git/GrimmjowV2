@@ -15,6 +15,10 @@ from flask import Flask, jsonify
 from threading import Thread
 import os
 
+# Import help.py
+from plugins.help import help_command
+from plugins.cbb import cb_handler  # Import cb_handler for close button functionality
+
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
 # Define saving_message as a global variable
