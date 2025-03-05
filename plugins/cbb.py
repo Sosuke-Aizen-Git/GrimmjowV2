@@ -81,7 +81,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         
         close_message = await client.send_message(
             chat_id=query.message.chat.id,
-            text=f"close by {query.from_user.mention}"
+            text=f"Closed by {query.from_user.mention}"
         )
         await sleep(10)
         await close_message.delete()
