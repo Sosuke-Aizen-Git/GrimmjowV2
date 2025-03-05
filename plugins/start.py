@@ -155,7 +155,7 @@ async def start_command(client: Client, message: Message):
         )
 
         # Select a random photo from the list
-        random_photo = random.choice(photo)
+        random_photo = random.choice(photos)
         await client.send_photo(
             chat_id=message.chat.id,
             photo=random_photo,
