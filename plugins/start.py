@@ -4,14 +4,15 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
 from bot import Bot
-from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME
 from helper_func import subscribed, encode, decode, get_messages
 from database.db_handler import get_force_sub_channel, refresh_db_handler
 from database.database import add_user, del_user, full_userbase, present_user
 from plugins.cbb import check_force_sub  # Import the check_force_sub function
 import pymongo
 from config import FILE_AUTO_DELETE
-import random  # Import random to select a random photo
+from plugins.cbb import check_force_sub
+import random 
 
 dbclient = pymongo.MongoClient(DB_URL)
 database = dbclient[DB_NAME]
@@ -57,12 +58,14 @@ madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
 
+
 # List of photo URLs
 photos = [
-    "https://litter.catbox.moe/8ngis1.jpg",
     "https://litter.catbox.moe/21bhag.jpg",
+    "https://litter.catbox.moe/8ngis1.jpg",
     # Add more photo URLs as needed
 ]
+
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 @Bot.on_message(filters.command('start') & filters.group & subscribed)
@@ -135,7 +138,7 @@ async def start_command(client: Client, message: Message):
             except:
                 pass
 
-        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Or Other Reasons).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons). \n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
 
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
@@ -152,8 +155,7 @@ async def start_command(client: Client, message: Message):
         )
 
         # Select a random photo from the list
-        random_photo = random.choice(photos)
-
+        random_photo = random.choice(photo)
         await client.send_photo(
             chat_id=message.chat.id,
             photo=random_photo,
@@ -328,7 +330,7 @@ async def list_admins(client, message):
             admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
 
         admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
-    
+
     admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
 
     # Add close button to the reply markup
