@@ -70,14 +70,12 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     elif data == "cancel":
         await query.message.edit_text(f"Operation cancelled by {query.from_user.mention}")
 
-    # **Force Subscription Management**
     elif data.startswith("confirm_save_fsub_"):
         channel_index = int(data.split("_")[-2])
         new_channel_id = int(data.split("_")[-1])
         set_force_sub_channel(channel_index, new_channel_id)
         await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Saved by {query.from_user.mention}")
 
-    # **Admin Management**
     elif data.startswith("confirm_save_admin_"):
         user_id = int(data.split("_")[-1])
         add_admin(user_id)
@@ -92,17 +90,15 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         else:
             await query.message.edit_text(f"Admin {user_id} not found")
 
-    # **Auto Delete Settings**
     elif data.startswith("confirm_save_autodel_"):
         new_auto_delete_time = int(data.split("_")[-1])
         set_auto_delete_time(new_auto_delete_time)
         await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds. Saved by {query.from_user.mention}")
 
-    # **Feature Buttons**
+    # Implementing feature buttons
     elif data == "get_link":
         await query.message.edit_text(
-            text="```\n🔗 Get Link Commands:\n```\n"
-                 "/genlink - Generate a single Video/File link (Admins only)\n"
+            text="/genlink - Generate a single Video/File link (Admins only)\n"
                  "/batch - Generate multiple Videos/Files links (Admins only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
@@ -112,8 +108,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     elif data == "users":
         await query.message.edit_text(
-            text="```\n👥 Users Commands:\n```\n"
-                 "/users - Check total users (Admins only)",
+            text="/users - Check total users (Admins only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
                  InlineKeyboardButton("❌ Close", callback_data="close")]
@@ -122,8 +117,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     elif data == "fsub":
         await query.message.edit_text(
-            text="```\n📌 FSub Commands:\n```\n"
-                 "/add_fsub <Index> <Channel ID> - Set a force sub channel (Sudo only)",
+            text="/add_fsub <Index> <Channel ID> - Set a force sub channel (Sudo only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
                  InlineKeyboardButton("❌ Close", callback_data="close")]
@@ -132,8 +126,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     elif data == "broadcast":
         await query.message.edit_text(
-            text="```\n📢 Broadcast Commands:\n```\n"
-                 "/broadcast - Send a broadcast message (Admins only)\n"
+            text="/broadcast - Send a broadcast message (Admins only)\n"
                  "/fpbroadcast - Send a forwardable broadcast (Admins only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
@@ -143,8 +136,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     elif data == "dev":
         await query.message.edit_text(
-            text="```\n🛠 Developer Commands:\n```\n"
-                 "/refresh - Refresh the database (Owner only)\n"
+            text="/refresh - Refresh the database (Owner only)\n"
                  "/restart - Restart the bot (Owner only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
@@ -172,7 +164,6 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
-# **Force Subscription Management Command**
 @Bot.on_message(filters.command("add_fsub") & filters.user([OWNER_ID] + SUDO_USERS))
 async def add_fsub(client, message):
     try:
@@ -189,7 +180,6 @@ async def add_fsub(client, message):
     except Exception as e:
         await message.reply(f"Error: {e}")
 
-# **Auto Delete Time Command**
 @Bot.on_message(filters.command("setautodel") & filters.user([OWNER_ID] + SUDO_USERS))
 async def set_auto_delete_time_command(client, message):
     try:
@@ -200,6 +190,22 @@ async def set_auto_delete_time_command(client, message):
             f"Set auto delete time to {new_auto_delete_time} seconds?",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_autodel_{new_auto_delete_time}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
+            ])
+        )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
+
+@Bot.on_message(filters.command("addadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def add_admin_command(client, message):
+    try:
+        _, user_identifier = message.text.split()
+        user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
+
+        await message.reply(
+            f"Add admin {user_identifier}?",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_admin_{user_id}")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
