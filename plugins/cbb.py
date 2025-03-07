@@ -215,6 +215,31 @@ async def add_admin_command(client, message):
     except Exception as e:
         await message.reply(f"Error: {e}")
 
+
+@Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def remove_admin_command(client, message):
+    try:
+        _, user_identifier = message.text.split()
+        if user_identifier.isdigit():
+            user_id = int(user_identifier)
+        else:
+            user = await client.get_users(user_identifier)
+            user_id = user.id
+
+        await message.reply(
+            f"Are you sure you want to remove admin {user_identifier}?",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_remove_admin_{user_id}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
+            ])
+        )
+
+    except Exception as e:
+        await message.reply(f"Error: {e}")
+
+
+
+
 async def check_force_sub(client, user_id):
     channels = [get_force_sub_channel(i) for i in range(1, 5)]
     for channel in channels:
