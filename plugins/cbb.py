@@ -1,4 +1,4 @@
-from pyrogram import filters, __version__
+from pyrofork import filters, __version__
 from bot import Bot
 import pymongo
 from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME
@@ -8,7 +8,7 @@ from database.db_handler import (
 )
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import random
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrofork.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
 
 # Function to react to messages
