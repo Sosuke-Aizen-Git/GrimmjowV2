@@ -276,9 +276,11 @@ async def delete_files(messages, client, k):
 
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
-@Client.on_message(filters.command("admins") & filters.user(SUDO_USERS + get_admins()))
+SUDO_ADMIN = (SUDO_USERS + get_admins())
+
+@Client.on_message(filters.command("admins") & filters.user(SUDO_ADMIN))
 async def list_admins(client, message):
-    unique_admins = list(set(ADMINS + get_admins()))  # Remove duplicate IDs
+    unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
     admins_list = []
 
     for index, admin_id in enumerate(unique_admins, start=1):
