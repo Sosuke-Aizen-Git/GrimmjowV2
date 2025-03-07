@@ -71,17 +71,19 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         await query.message.edit_text(f"Operation cancelled by {query.from_user.mention}")
 
     elif data.startswith("confirm_save_fsub_"):
+        await refresh_db_handler()
         channel_index = int(data.split("_")[-2])
         new_channel_id = int(data.split("_")[-1])
         set_force_sub_channel(channel_index, new_channel_id)
-        await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Saved by {query.from_user.mention}")
-
+        await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
     elif data.startswith("confirm_save_admin_"):
+        await refresh_db_handler()
         user_id = int(data.split("_")[-1])
         add_admin(user_id)
         await query.message.edit_text(f"Admin {user_id} added successfully. Saved by {query.from_user.mention}")
 
     elif data.startswith("confirm_remove_admin_"):
+        await refresh_db_handler()
         user_id = int(data.split("_")[-1])
         admins = get_admins()
         if user_id in admins:
@@ -91,9 +93,10 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             await query.message.edit_text(f"Admin {user_id} not found")
 
     elif data.startswith("confirm_save_autodel_"):
+        await refresh_db_handler()
         new_auto_delete_time = int(data.split("_")[-1])
         set_auto_delete_time(new_auto_delete_time)
-        await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds. Saved by {query.from_user.mention}")
+        await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds and Database refreshed. Saved by {query.from_user.mention}")
 
     # Implementing feature buttons
     elif data == "get_link":
