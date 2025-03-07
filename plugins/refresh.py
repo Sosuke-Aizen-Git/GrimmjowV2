@@ -60,7 +60,6 @@ async def refresh_auto_delete_time():
 async def refresh_command(client, message):
     await refresh_database()
     await refresh_admins()
-    await get_auto_delete_time()
     await refresh_db_handler()
     await refresh_auto_delete_time()
     await message.reply_text("Database and force sub channels have been updated successfully with the latest changes.")
