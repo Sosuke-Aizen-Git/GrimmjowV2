@@ -1,5 +1,5 @@
 from bot import Bot
-from pyrogram import Client, filters, __version__
+from pyrofork import Client, filters, __version__
 from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
 from database.database import add_user, del_user, full_userbase, present_user
 from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME
