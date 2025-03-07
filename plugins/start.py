@@ -276,28 +276,29 @@ async def delete_files(messages, client, k):
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
-@Client.on_message(filters.command("admins") & filters.user(SUDO_USERS + get_admins()))
-await refresh_admins()
-    if message.from_user.id in ADMINS:
+@Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
-    unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
-    admins_list = []
+    await refresh_admins()
+    if message.from_user.id in ADMINS:
 
-    for index, admin_id in enumerate(unique_admins, start=1):
-        try:
-            user = await client.get_users(admin_id)  # Fetch user details
-            admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
-        except Exception:
-            admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
+        unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
+        admins_list = []
 
-        admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
+        for index, admin_id in enumerate(unique_admins, start=1):
+            try:
+                user = await client.get_users(admin_id)  # Fetch user details
+                admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
+            except Exception:
+                admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
+
+            admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
     
-    admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
+        admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
 
-    # Add close button to the reply markup
-    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
+        # Add close button to the reply markup
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
 
-    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+        await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS + get_admins()))
