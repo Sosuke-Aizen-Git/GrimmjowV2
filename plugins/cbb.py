@@ -6,41 +6,16 @@ from database.db_handler import (
     set_force_sub_channel, get_force_sub_channel, set_auto_delete_time, 
     add_admin, remove_admin, get_admins
 )
-from database.db_handler import get_force_sub_channel, refresh_db_handler
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from asyncio import sleep
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import random
-    
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from asyncio import sleep
+
 # Photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
     "https://litter.catbox.moe/8ngis1.jpg",
 ]
-
-@Bot.on_message(filters.command("help"))
-async def help_command(client, message):
-    buttons = [
-        [
-            InlineKeyboardButton("Get Link", callback_data="get_link"),
-            InlineKeyboardButton("Broadcast", callback_data="broadcast"),
-            InlineKeyboardButton("Users", callback_data="users")
-        ],
-        [
-            InlineKeyboardButton("FSub", callback_data="fsub"),
-            InlineKeyboardButton("Dev", callback_data="dev")
-        ],
-        [
-            InlineKeyboardButton("Close", callback_data="close")
-        ]
-    ]
-
-    await client.send_photo(
-        chat_id=message.chat.id,
-        photo=random.choice(photos),
-        caption="Here are the available commands:",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
 
 @Bot.on_callback_query()
 async def cb_handler(client: Bot, query: CallbackQuery):
@@ -74,30 +49,26 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         await query.message.edit_text(f"Operation cancelled by {query.from_user.mention}")
 
     elif data.startswith("confirm_save_fsub_"):
-        if query.message.from_user.id in SUDO_USERS:
+        if query.from_user.id in SUDO_USERS:  # FIXED
             await refresh_database()
-            await refresh_db_handler()
             await refresh_force_sub_channels()
             channel_index = int(data.split("_")[-2])
             new_channel_id = int(data.split("_")[-1])
             set_force_sub_channel(channel_index, new_channel_id)
             await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
+
     elif data.startswith("confirm_save_admin_"):
-        if query.message.from_user.id in SUDO_USERS:
+        if query.from_user.id in SUDO_USERS:  # FIXED
             await refresh_database()
-            await refresh_db_handler()
             await refresh_admins()
-            await refresh_force_sub_channels()
             user_id = int(data.split("_")[-1])
             add_admin(user_id)
             await query.message.edit_text(f"Admin {user_id} added successfully. Saved by {query.from_user.mention}")
 
     elif data.startswith("confirm_remove_admin_"):
-        if query.message.from_user.id in SUDO_USERS:
+        if query.from_user.id in SUDO_USERS:  # FIXED
             await refresh_database()
-            await refresh_db_handler()
             await refresh_admins()
-            await refresh_force_sub_channels()
             user_id = int(data.split("_")[-1])
             admins = get_admins()
             if user_id in admins:
@@ -107,63 +78,12 @@ async def cb_handler(client: Bot, query: CallbackQuery):
                 await query.message.edit_text(f"Admin {user_id} not found")
 
     elif data.startswith("confirm_save_autodel_"):
-        if query.message.from_user.id in SUDO_USERS:
+        if query.from_user.id in SUDO_USERS:  # FIXED
             await refresh_database()
-            await refresh_db_handler()
             await refresh_auto_delete_time()
-            await refresh_force_sub_channels()
             new_auto_delete_time = int(data.split("_")[-1])
             set_auto_delete_time(new_auto_delete_time)
-            await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds and Database refreshed. Saved by {query.from_user.mention}")
-
-    # Implementing feature buttons
-    elif data == "get_link":
-        await query.message.edit_text(
-            text="/genlink - Generate a single Video/File link (Admins only)\n"
-                 "/batch - Generate multiple Videos/Files links (Admins only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
-
-    elif data == "users":
-        await query.message.edit_text(
-            text="/users - Check total users (Admins only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
-
-    elif data == "fsub":
-        await query.message.edit_text(
-            text="/add_fsub <Index> <Channel ID> - Set a force sub channel (Sudo only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
-
-    elif data == "broadcast":
-        await query.message.edit_text(
-            text="/broadcast - Send a broadcast message (Admins only)\n"
-                 "/fpbroadcast - Send a forwardable broadcast (Admins only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
-
-    elif data == "dev":
-        await query.message.edit_text(
-            text="/refresh - Refresh the database (Owner only)\n"
-                 "/restart - Restart the bot (Owner only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
+            await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds. Database refreshed. Saved by {query.from_user.mention}")
 
     elif data == "back_to_help":
         buttons = [
@@ -180,8 +100,8 @@ async def cb_handler(client: Bot, query: CallbackQuery):
                 InlineKeyboardButton("Close", callback_data="close")
             ]
         ]
-        await query.message.edit_caption(
-            caption="Here are the available commands:",
+        await query.message.edit_text(  # FIXED (was using edit_caption by mistake)
+            text="Here are the available commands:",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
@@ -265,8 +185,3 @@ async def check_force_sub(client, user_id):
             except:
                 return False
     return True
-
-# Define the refresh_db_handler function
-async def refresh_db_handler():
-    # Your code to refresh the database
-    pass
