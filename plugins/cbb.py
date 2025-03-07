@@ -9,7 +9,6 @@ from database.db_handler import (
 from database.db_handler import get_force_sub_channel, refresh_db_handler
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
-from plugins.start import cache_invite_links
 import random
 
 
@@ -26,8 +25,7 @@ async def refresh_force_sub_channels():
     FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
     FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
     FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
-    await cache_invite_links()
-
+    
 # Photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
