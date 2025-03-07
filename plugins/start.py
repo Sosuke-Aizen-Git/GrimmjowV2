@@ -328,8 +328,8 @@ async def forward_broadcast(client, message):
                 successful += 1
                 try:
                     await client.pin_chat_message(chat_id, sent_msg.id)
-                 except ChatAdminRequired:
-                     print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+                except ChatAdminRequired:
+                    print(f"Cannot pin message in {chat_id}, bot is not an admin.")
 
              except UserIsBlocked:
                 await del_user(chat_id)
