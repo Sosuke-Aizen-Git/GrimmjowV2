@@ -19,6 +19,14 @@ async def refresh_database():
     user_data = database['users']
     return
 
+async def refresh_force_sub_channels():
+    global FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4
+    FORCE_SUB_CHANNEL_1 = get_force_sub_channel(1)
+    FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
+    FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
+    FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
+    await cache_invite_links()
+
 # Photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
