@@ -74,7 +74,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         await query.message.edit_text(f"Operation cancelled by {query.from_user.mention}")
 
     elif data.startswith("confirm_save_fsub_"):
-        if message.from_user.id in SUDO_USERS:
+        if query.message.from_user.id in SUDO_USERS:
             await refresh_database()
             await refresh_db_handler()
             await refresh_force_sub_channels()
@@ -83,7 +83,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             set_force_sub_channel(channel_index, new_channel_id)
             await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
     elif data.startswith("confirm_save_admin_"):
-        if message.from_user.id in SUDO_USERS:
+        if query.message.from_user.id in SUDO_USERS:
             await refresh_database()
             await refresh_db_handler()
             await refresh_admins()
@@ -93,7 +93,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             await query.message.edit_text(f"Admin {user_id} added successfully. Saved by {query.from_user.mention}")
 
     elif data.startswith("confirm_remove_admin_"):
-        if message.from_user.id in SUDO_USERS:
+        if query.message.from_user.id in SUDO_USERS:
             await refresh_database()
             await refresh_db_handler()
             await refresh_admins()
@@ -107,7 +107,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
                 await query.message.edit_text(f"Admin {user_id} not found")
 
     elif data.startswith("confirm_save_autodel_"):
-        if message.from_user.id in SUDO_USERS:
+        if query.message.from_user.id in SUDO_USERS:
             await refresh_database()
             await refresh_db_handler()
             await refresh_auto_delete_time()
