@@ -145,7 +145,24 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         )
 
     elif data == "back_to_help":
-        await help_command(client, query.message)
+        buttons = [
+            [
+                InlineKeyboardButton("Get Link", callback_data="get_link"),
+                InlineKeyboardButton("Broadcast", callback_data="broadcast"),
+                InlineKeyboardButton("Users", callback_data="users")
+            ],
+            [
+                InlineKeyboardButton("FSub", callback_data="fsub"),
+                InlineKeyboardButton("Dev", callback_data="dev")
+            ],
+            [
+                InlineKeyboardButton("Close", callback_data="close")
+            ]
+        ]
+        await query.message.edit_caption(
+            caption="Here are the available commands:",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
 
 @Bot.on_message(filters.command("add_fsub") & filters.user([OWNER_ID] + SUDO_USERS))
 async def add_fsub(client, message):
@@ -189,22 +206,6 @@ async def add_admin_command(client, message):
             f"Add admin {user_identifier}?",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_admin_{user_id}")],
-                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
-            ])
-        )
-    except Exception as e:
-        await message.reply(f"Error: {e}")
-
-@Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
-async def remove_admin_command(client, message):
-    try:
-        _, user_identifier = message.text.split()
-        user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
-
-        await message.reply(
-            f"Remove admin {user_identifier}?",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_remove_admin_{user_id}")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
