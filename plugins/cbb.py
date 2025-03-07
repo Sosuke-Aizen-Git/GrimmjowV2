@@ -111,6 +111,54 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             set_auto_delete_time(new_auto_delete_time)
             await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds. Database refreshed. Saved by {query.from_user.mention}")
 
+    elif data == "get_link":
+        await query.message.edit_text(
+            text="/genlink - Generate a single Video/File link (Admins only)\n"
+                 "/batch - Generate multiple Videos/Files links (Admins only)",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
+                 InlineKeyboardButton("❌ Close", callback_data="close")]
+            ])
+        )
+
+    elif data == "users":
+        await query.message.edit_text(
+            text="/users - Check total users (Admins only)",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
+                 InlineKeyboardButton("❌ Close", callback_data="close")]
+            ])
+        )
+
+    elif data == "fsub":
+        await query.message.edit_text(
+            text="/add_fsub <Index> <Channel ID> - Set a force sub channel (Sudo only)",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
+                 InlineKeyboardButton("❌ Close", callback_data="close")]
+            ])
+        )
+
+    elif data == "broadcast":
+        await query.message.edit_text(
+            text="/broadcast - Send a broadcast message (Admins only)\n"
+                 "/fpbroadcast - Send a forwardable broadcast (Admins only)",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
+                 InlineKeyboardButton("❌ Close", callback_data="close")]
+            ])
+        )
+
+    elif data == "dev":
+        await query.message.edit_text(
+            text="/refresh - Refresh the database (Owner only)\n"
+                 "/restart - Restart the bot (Owner only)",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
+                 InlineKeyboardButton("❌ Close", callback_data="close")]
+            ])
+        )
+    
     elif data == "back_to_help":
         buttons = [
             [
