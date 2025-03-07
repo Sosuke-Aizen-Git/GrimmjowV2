@@ -11,6 +11,8 @@ from database.database import add_user, del_user, full_userbase, present_user
 from plugins.cbb import check_force_sub  # Import the check_force_sub function
 import pymongo
 import random  # Import random to select a random photo
+from plugins.cbb import cb_handler
+
 
 dbclient = pymongo.MongoClient(DB_URL)
 database = dbclient[DB_NAME]
