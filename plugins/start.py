@@ -193,7 +193,7 @@ async def get_users(client: Bot, message: Message):
     users = await full_userbase()
     await msg.edit(f"{len(users)} Users Are Using This Bot")
 
-@Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
+@Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS + (get_admins())))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
         query = await full_userbase()
@@ -239,7 +239,7 @@ async def send_text(client: Bot, message: Message):
         await asyncio.sleep(8)
         await msg.delete()
 
-@Client.on_message(filters.command("fsubs") & filters.user([OWNER_ID] + ADMINS))
+@Client.on_message(filters.command("fsubs") & filters.user(ADMINS + (get_admins())))
 async def force_subs(client, message):
     channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
 
@@ -276,7 +276,7 @@ async def delete_files(messages, client, k):
 
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
-@Client.on_message(filters.command("admins") & filters.user([OWNER_ID] + ADMINS))
+@Client.on_message(filters.command("admins") & filters.user(ADMINS + (get_admins())))
 async def list_admins(client, message):
     unique_admins = list(set(ADMINS + get_admins()))  # Remove duplicate IDs
     admins_list = []
