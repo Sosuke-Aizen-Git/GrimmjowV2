@@ -11,6 +11,32 @@ import random
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
 
+
+@Bot.on_message(filters.command("help"))
+async def help_command(client, message):
+    buttons = [
+        [
+            InlineKeyboardButton("Get Link", callback_data="get_link"),
+            InlineKeyboardButton("Broadcast", callback_data="broadcast"),
+            InlineKeyboardButton("Users", callback_data="users")
+        ],
+        [
+            InlineKeyboardButton("FSub", callback_data="fsub"),
+            InlineKeyboardButton("Dev", callback_data="dev")
+        ],
+        [
+            InlineKeyboardButton("Close", callback_data="close")
+        ]
+    ]
+
+    await client.send_photo(
+        chat_id=message.chat.id,
+        photo=random.choice(photos),
+        caption="Here are the available commands:",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+
 # Photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
