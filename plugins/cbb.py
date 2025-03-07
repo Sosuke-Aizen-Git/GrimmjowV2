@@ -84,7 +84,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     elif data.startswith("confirm_save_admin_"):
         await refresh_database()
         await refresh_db_handler()
-        await get_admins()
+        await refresh_admins()
         await refresh_force_sub_channels()
         user_id = int(data.split("_")[-1])
         add_admin(user_id)
@@ -93,6 +93,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     elif data.startswith("confirm_remove_admin_"):
         await refresh_database()
         await refresh_db_handler()
+        await refresh_admins()
         await refresh_force_sub_channels()
         user_id = int(data.split("_")[-1])
         admins = get_admins()
