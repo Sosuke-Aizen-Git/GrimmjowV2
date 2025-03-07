@@ -16,7 +16,7 @@ import random  # Import random to select a random photo
 def load_admins():
     return SUDO_USERS + get_admins()
 
-ADMINS = load_admins()
+HERO = load_admins()
 
 
 madflixofficials = FILE_AUTO_DELETE
