@@ -193,7 +193,7 @@ async def get_users(client: Bot, message: Message):
     users = await full_userbase()
     await msg.edit(f"{len(users)} Users Are Using This Bot")
 
-@Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS + (get_admins())))
+@Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS + get_admins()))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
         query = await full_userbase()
@@ -276,7 +276,7 @@ async def delete_files(messages, client, k):
 
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
-@Client.on_message(filters.command("admins") & filters.user(ADMINS + (get_admins())))
+@Client.on_message(filters.command("admins") & filters.user(ADMINS + get_admins()))
 async def list_admins(client, message):
     unique_admins = list(set(ADMINS + get_admins()))  # Remove duplicate IDs
     admins_list = []
@@ -298,7 +298,7 @@ async def list_admins(client, message):
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
-@Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS))
+@Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS + get_admins()))
 async def forward_broadcast(client, message):
     if not message.reply_to_message:
         return await message.reply("❌ Use this command as a reply to the message you want to forward.")
@@ -315,11 +315,7 @@ async def forward_broadcast(client, message):
             successful += 1
 
             # Try to pin the message
-            try:
-                await client.pin_chat_message(chat_id, sent_msg.id)
-            except ChatAdminRequired:
-                print(f"Cannot pin message in {chat_id}, bot is not an admin.")
-
+            
         except FloodWait as e:
             await asyncio.sleep(e.x)
             sent_msg = await forward_msg.forward(chat_id)
