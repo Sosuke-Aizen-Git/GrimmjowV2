@@ -265,7 +265,7 @@ async def force_subs(client, message):
 
 # Function to handle file deletion
 async def delete_files(messages, client, k):
-    await asyncio.sleep(FILE_AUTO_DELETE)  # Wait for the duration specified in config.py
+    await asyncio.sleep(get_auto_delete())  # Wait for the duration specified in config.py
     for msg in messages:
         if msg is not None:  # Ensure msg is not None
             try:
