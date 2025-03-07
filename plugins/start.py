@@ -382,7 +382,7 @@ from config import FILE_AUTO_DELETE
 @Bot.on_message(filters.command('autodel') & filters.private)
 @Bot.on_message(filters.command('autodel') & filters.group)
 async def autodel_command(client: Client, message: Message):
-    await message.reply_text("The current auto delete timer is set to ",get_auto_delete_time()," seconds.")
+    await message.reply_text("The current auto delete timer is set to ",FILE_AUTO_DELETE," seconds.")
 
 
 # Jishu Developer 
