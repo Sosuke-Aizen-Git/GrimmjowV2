@@ -11,6 +11,12 @@ import random
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
 
+# Function to react to messages
+async def react_to_message(message: Message, emoji: str):
+    try:
+        await message.react(emoji)
+    except Exception as e:
+        print(f"Failed to react: {e}")  # Print error if reaction fails
 
 @Bot.on_message(filters.command("help"))
 async def help_command(client, message):
