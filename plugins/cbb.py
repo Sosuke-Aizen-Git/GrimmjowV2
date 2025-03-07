@@ -95,57 +95,78 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         set_auto_delete_time(new_auto_delete_time)
         await query.message.edit_text(f"Auto delete time updated to {new_auto_delete_time} seconds. Saved by {query.from_user.mention}")
 
-    # Handling new buttons
-    elif data == "get_link":
-        await query.message.edit_text(
-            text="/genlink - To generate a single Video/file link. (Admins only)\n"
-                 "/batch - To generate multiple Videos/files links. (Admins only)",
+@Bot.on_message(filters.command("add_fsub") & filters.user([OWNER_ID] + SUDO_USERS))
+async def add_fsub(client, message):
+    try:
+        _, index, new_channel_id = message.text.split()
+        index, new_channel_id = int(index), int(new_channel_id)
+
+        await message.reply(
+            f"Are you sure you want to update Force Sub Channel {index} to {new_channel_id}?",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_fsub_{index}_{new_channel_id}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
 
-    elif data == "users":
-        await query.message.edit_text(
-            text="/users - To check total users (Admins only)",
+@Bot.on_message(filters.command("setautodel") & filters.user([OWNER_ID] + SUDO_USERS))
+async def set_auto_delete_time_command(client, message):
+    try:
+        _, new_auto_delete_time = message.text.split()
+        new_auto_delete_time = int(new_auto_delete_time)
+
+        await message.reply(
+            f"Set auto delete time to {new_auto_delete_time} seconds?",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_autodel_{new_auto_delete_time}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
 
-    elif data == "fsub":
-        await query.message.edit_text(
-            text="/add_fsub1 <Channel ID> - To set the first force sub channel (Sudo only)\n"
-                 "/add_fsub2 <Channel ID> - To set the second force sub channel (Sudo only)\n"
-                 "/add_fsub3 <Channel ID> - To set the third force sub channel (Sudo only)\n"
-                 "/add_fsub4 <Channel ID> - To set the fourth force sub channel (Sudo only)",
+@Bot.on_message(filters.command("addadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def add_admin_command(client, message):
+    try:
+        _, user_identifier = message.text.split()
+        user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
+
+        await message.reply(
+            f"Add admin {user_identifier}?",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_admin_{user_id}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
 
-    elif data == "broadcast":
-        await query.message.edit_text(
-            text="/broadcast - To broadcast to users (Admins only)\n"
-                 "/fpbroadcast - To broadcast with sender tag (Admins only)",
+@Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
+async def remove_admin_command(client, message):
+    try:
+        _, user_identifier = message.text.split()
+        user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
+
+        await message.reply(
+            f"Remove admin {user_identifier}?",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
+                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_remove_admin_{user_id}")],
+                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
             ])
         )
+    except Exception as e:
+        await message.reply(f"Error: {e}")
 
-    elif data == "dev":
-        await query.message.edit_text(
-            text="/refresh - To refresh the database (Owner only)\n"
-                 "/restart - To restart the bot (Owner only)",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
-                 InlineKeyboardButton("❌ Close", callback_data="close")]
-            ])
-        )
-
-    elif data == "back_to_help":
-        await help_command(client, query.message)
+async def check_force_sub(client, user_id):
+    channels = [get_force_sub_channel(i) for i in range(1, 5)]
+    for channel in channels:
+        if channel:
+            try:
+                member = await client.get_chat_member(channel, user_id)
+                if member.status not in ["member", "administrator", "creator"]:
+                    return False
+            except:
+                return False
+    return True
