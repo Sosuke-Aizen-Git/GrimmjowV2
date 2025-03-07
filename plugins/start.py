@@ -278,7 +278,7 @@ async def delete_files(messages, client, k):
 
 @Client.on_message(filters.command("admins") & filters.user([OWNER_ID] + ADMINS))
 async def list_admins(client, message):
-    unique_admins = list(set(ADMINS + " ".join(map(0, get_admins()))))  # Remove duplicate IDs
+    unique_admins = list(set(ADMINS + get_admins()))  # Remove duplicate IDs
     admins_list = []
 
     for index, admin_id in enumerate(unique_admins, start=1):
