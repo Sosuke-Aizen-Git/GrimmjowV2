@@ -5,6 +5,7 @@ from database.db_handler import (
     set_force_sub_channel, get_force_sub_channel, set_auto_delete_time, 
     add_admin, remove_admin, get_admins
 )
+from database.db_handler import get_force_sub_channel, refresh_db_handler
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
 import random
