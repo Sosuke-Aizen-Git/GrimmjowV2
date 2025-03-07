@@ -1,6 +1,6 @@
 from bot import Bot
 from pyrogram import Client, filters, __version__
-from database.db_handler import get_force_sub_channel, refresh_db_handler
+from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
 from database.database import add_user, del_user, full_userbase, present_user
 from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME
 import pymongo
@@ -44,6 +44,16 @@ async def refresh_database():
     database = dbclient[DB_NAME]
     user_data = database['users']
     return
+
+from database.db_handler import get_admins, get_auto_delete_time
+
+async def refresh_admins():
+    global ADMINS
+    ADMINS = get_admins()
+
+async def refresh_auto_delete_time():
+    global auto_delete_time
+    auto_delete_time = get_auto_delete_time()
 
 @Bot.on_message(filters.command('refresh') & filters.private & filters.user([OWNER_ID] + SUDO_USERS))
 @Bot.on_message(filters.command('refresh') & filters.group & filters.user([OWNER_ID] + SUDO_USERS))
