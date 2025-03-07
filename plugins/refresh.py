@@ -1,3 +1,4 @@
+from bot import Bot
 from database.db_handler import get_force_sub_channel, refresh_db_handler
 from database.database import add_user, del_user, full_userbase, present_user
 from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME
