@@ -299,6 +299,8 @@ async def list_admins(client, message):
         reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
 
         await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+    else:
+        await message.reply_text("You are not the Authorised user!")
 
 
 @Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS + get_admins()))
