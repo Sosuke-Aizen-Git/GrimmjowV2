@@ -13,7 +13,6 @@ from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_
 import pymongo
 import random  # Import random to select a random photo
 
-
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
 file_auto_delete = humanize.naturaldelta(jishudeveloper)
