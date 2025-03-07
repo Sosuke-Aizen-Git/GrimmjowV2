@@ -9,6 +9,7 @@ from database.db_handler import (
 from database.db_handler import get_force_sub_channel, refresh_db_handler
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
+from plugins.start import cache_invite_links
 import random
 
 
