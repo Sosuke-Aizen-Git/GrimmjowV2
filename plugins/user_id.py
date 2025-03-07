@@ -1,5 +1,5 @@
-from pyrogram import filters, enums
-from pyrogram.types import Message
+from pyrofork import filters, enums
+from pyrofork.types import Message
 from bot import Bot
 
 
