@@ -1,12 +1,12 @@
 from aiohttp import web
 from plugins import web_server
 import pyromod.listen
-from pyrogram import Client
-from pyrogram.enums import ParseMode
+from pyrofork import Client
+from pyrofork.enums import ParseMode
 import sys
 from datetime import datetime
 from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT, ADMINS, SUDO_USERS, OWNER_ID
-import pyrogram.utils
+import pyrofork.utils
 from utils import update_saved_button_state
 import asyncio
 from asyncio import sleep
