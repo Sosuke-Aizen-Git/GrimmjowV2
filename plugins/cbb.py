@@ -9,6 +9,14 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from asyncio import sleep
 import random
 
+
+async def refresh_database():
+    global dbclient, database, user_data
+    dbclient = pymongo.MongoClient(DB_URL)
+    database = dbclient[DB_NAME]
+    user_data = database['users']
+    return
+
 # Photo URLs
 photos = [
     "https://litter.catbox.moe/21bhag.jpg",
