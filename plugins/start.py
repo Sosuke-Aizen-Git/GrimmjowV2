@@ -138,10 +138,10 @@ async def not_joined(client: Client, message: Message):
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
-    client.invitelink = (await client.get_chat(FORCE_SUB_CHANNEL_1)).invite_link if FORCE_SUB_CHANNEL_1 else None
-    client.invitelink2 = (await client.get_chat(FORCE_SUB_CHANNEL_2)).invite_link if FORCE_SUB_CHANNEL_2 else None
-    client.invitelink3 = (await client.get_chat(FORCE_SUB_CHANNEL_3)).invite_link if FORCE_SUB_CHANNEL_3 else None
-    client.invitelink4 = (await client.get_chat(FORCE_SUB_CHANNEL_4)).invite_link if FORCE_SUB_CHANNEL_4 else None
+    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
 
     buttons = [
         [
@@ -241,7 +241,7 @@ async def send_text(client: Bot, message: Message):
 
 @Client.on_message(filters.command("fsubs") & filters.user([OWNER_ID] + ADMINS))
 async def force_subs(client, message):
-    channels = [FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4]
+    channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
 
     buttons = []
     for channel in channels:
