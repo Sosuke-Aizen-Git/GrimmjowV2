@@ -52,13 +52,15 @@ async def refresh_admins():
     ADMINS = get_admins()
 
 async def refresh_auto_delete_time():
-    global auto_delete_time
-    auto_delete_time = get_auto_delete_time()
+    global FILE_AUTO_DELETE
+    FILE_AUTO_DELETE = get_auto_delete_time()
 
 @Bot.on_message(filters.command('refresh') & filters.private & filters.user([OWNER_ID] + SUDO_USERS))
 @Bot.on_message(filters.command('refresh') & filters.group & filters.user([OWNER_ID] + SUDO_USERS))
 async def refresh_command(client, message):
     await refresh_database()
+    await get_admins()
+    await get_auto_delete_time()
     await refresh_db_handler()
     await refresh_force_sub_channels()
     await message.reply_text("Database and force sub channels have been updated successfully with the latest changes.")
