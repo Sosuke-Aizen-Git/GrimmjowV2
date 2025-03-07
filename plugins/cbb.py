@@ -9,7 +9,7 @@ from database.db_handler import (
 from database.db_handler import get_force_sub_channel, refresh_db_handler
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
-from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command
+from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import random
     
 # Photo URLs
@@ -84,7 +84,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     elif data.startswith("confirm_save_admin_"):
         await refresh_database()
         await refresh_db_handler()
-        await get_admins()
+        await get_admin()
         await refresh_force_sub_channels()
         user_id = int(data.split("_")[-1])
         add_admin(user_id)
