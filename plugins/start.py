@@ -265,7 +265,7 @@ async def force_subs(client, message):
 
 # Function to handle file deletion
 async def delete_files(messages, client, k):
-    await asyncio.sleep(get_auto_delete())  # Wait for the duration specified in config.py
+    await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
     for msg in messages:
         if msg is not None:  # Ensure msg is not None
             try:
@@ -382,7 +382,7 @@ from config import FILE_AUTO_DELETE
 @Bot.on_message(filters.command('autodel') & filters.private)
 @Bot.on_message(filters.command('autodel') & filters.group)
 async def autodel_command(client: Client, message: Message):
-    await message.reply_text(f"The current auto delete timer is set to {FILE_AUTO_DELETE} seconds.")
+    await message.reply_text(f"The current auto delete timer is set to {get_auto_delete_time()} seconds.")
 
 
 # Jishu Developer 
