@@ -278,6 +278,8 @@ async def delete_files(messages, client, k):
 
 
 @Client.on_message(filters.command("admins") & filters.user(SUDO_USERS + get_admins()))
+await refresh_admins()
+    if message.from_user.id in ADMINS:
 async def list_admins(client, message):
     unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
     admins_list = []
