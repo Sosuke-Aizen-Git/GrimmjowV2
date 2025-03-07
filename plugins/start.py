@@ -378,13 +378,12 @@ async def get_id(client: Bot, message: Message):
 # Add this import statement at the top if not already present
 from config import FILE_AUTO_DELETE
 
-p = (get_auto_delete_time())
 
 # Add the following function in `start.py` to handle the /autodel command
 @Bot.on_message(filters.command('autodel') & filters.private)
 @Bot.on_message(filters.command('autodel') & filters.group)
 async def autodel_command(client: Client, message: Message):
-    await message.reply_text(f"The current auto delete timer is set to {p} seconds.")
+    await message.reply_text(f"The current auto delete timer is set to {(get_auto_delete_time())} seconds.")
 
 
 # Jishu Developer 
