@@ -215,7 +215,6 @@ async def add_admin_command(client, message):
     except Exception as e:
         await message.reply(f"Error: {e}")
 
-
 @Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
 async def remove_admin_command(client, message):
     try:
@@ -237,9 +236,6 @@ async def remove_admin_command(client, message):
     except Exception as e:
         await message.reply(f"Error: {e}")
 
-
-
-
 async def check_force_sub(client, user_id):
     channels = [get_force_sub_channel(i) for i in range(1, 5)]
     for channel in channels:
@@ -251,3 +247,8 @@ async def check_force_sub(client, user_id):
             except:
                 return False
     return True
+
+# Define the refresh_db_handler function
+async def refresh_db_handler():
+    # Your code to refresh the database
+    pass
