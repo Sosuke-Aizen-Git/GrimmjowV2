@@ -13,6 +13,32 @@ import pymongo
 import random  # Import random to select a random photo
 
 
+async def refresh_database():
+    global dbclient, database, user_data
+    dbclient = pymongo.MongoClient(DB_URL)
+    database = dbclient[DB_NAME]
+    user_data = database['users']
+    return
+
+async def refresh_force_sub_channels():
+    global FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4
+    FORCE_SUB_CHANNEL_1 = get_force_sub_channel(1)
+    FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
+    FORCE_SUB_CHANNEL_3 = get_force_sub_channel(3)
+    FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
+    await cache_invite_links()
+
+async def cache_invite_links():
+    global invite_links_cache
+    channels = [FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4]
+    for index, channel in enumerate(channels, start=1):
+        if channel:
+            try:
+                chat = await Bot.get_chat(chat_id=channel)
+                invite_links_cache[f'link{index}'] = chat.invite_link or await Bot.export_chat_invite_link(chat_id=channel)
+            except Exception as e:
+                print(f"Error generating invite link for {channel}: {e}")
+
 
 dbclient = pymongo.MongoClient(DB_URL)
 database = dbclient[DB_NAME]
