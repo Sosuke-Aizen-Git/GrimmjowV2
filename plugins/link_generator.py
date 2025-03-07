@@ -7,7 +7,7 @@ from helper_func import encode, get_message_id
 
 
 
-@Bot.on_message(filters.private & filters.user(ADMINS + get_admins() & filters.command('batch')))
+@Bot.on_message(filters.private & filters.user(ADMINS + (get_admins()) & filters.command('batch'))
 async def batch(client: Client, message: Message):
     while True:
         try:
