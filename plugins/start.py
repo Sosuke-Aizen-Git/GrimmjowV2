@@ -351,8 +351,8 @@ async def forward_broadcast(client, message):
     <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
 
         return await pls_wait.edit(status)
-else:
-    await message.reply_text("You are not the authorized user!")
+    else:
+        await message.reply_text("You are not the authorized user!")
 
 @Bot.on_message(filters.command('id') & filters.private)
 @Bot.on_message(filters.command('id') & filters.group)
