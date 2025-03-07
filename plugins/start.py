@@ -238,30 +238,31 @@ async def send_text(client: Bot, message: Message):
         await asyncio.sleep(8)
         await msg.delete()
 
-@Client.on_message(filters.command("fsubs") & filters.user(ADMINS + (get_admins())))
+@Client.on_message(filters.command("fsubs"))
 async def force_subs(client, message):
-    channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
+    if message.from_user.id in get_admins() + SUDO_USERS:
+        channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
 
-    buttons = []
-    for channel in channels:
-        if channel and str(channel).startswith("-100"):  # Ensure it's a valid channel ID
-            try:
-                chat = await client.get_chat(chat_id=channel)  # Fetch channel details
-                invite_link = await client.create_chat_invite_link(chat_id=channel)
-                buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])  # Use channel name
-            except Exception as e:
-                print(f"Error generating invite link for {channel}: {e}")
+        buttons = []
+        for channel in channels:
+            if channel and str(channel).startswith("-100"):  # Ensure it's a valid channel ID
+                try:
+                    chat = await client.get_chat(chat_id=channel)  # Fetch channel details
+                    invite_link = await client.create_chat_invite_link(chat_id=channel)
+                    buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])  # Use channel name
+                except Exception as e:
+                    print(f"Error generating invite link for {channel}: {e}")
 
-    if not buttons:
-        return await message.reply_text("No valid force subscription channels found!")
+        if not buttons:
+            return await message.reply_text("No valid force subscription channels found!")
 
-    # Add close button to the reply markup
-    buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
+        # Add close button to the reply markup
+        buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
 
-    reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
-
-
+        reply_markup = InlineKeyboardMarkup(buttons)
+        await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
+    else:
+        await message.reply_text("You are not an authorized user!")
 # Function to handle file deletion
 async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
@@ -299,56 +300,59 @@ async def list_admins(client, message):
 
         await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
     else:
-        await message.reply_text("You are not the Authorised user!")
+        await message.reply_text("You are not the authorized user!")
 
 
-@Client.on_message(filters.private & filters.command("fpbroadcast") & filters.user([OWNER_ID] + ADMINS + get_admins()))
+@Client.on_message(filters.private & filters.command("fpbroadcast"))
 async def forward_broadcast(client, message):
-    if not message.reply_to_message:
-        return await message.reply("❌ Use this command as a reply to the message you want to forward.")
+    if message.from_user.id in get_admins() + SUDO_USERS:
+        if not message.reply_to_message:
+            return await message.reply("❌ Use this command as a reply to the message you want to forward.")
 
-    query = await full_userbase()
-    forward_msg = message.reply_to_message
-    total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
+        query = await full_userbase()
+        forward_msg = message.reply_to_message
+        total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
 
-    pls_wait = await message.reply("<i>Forwarding message to all users... This may take some time.</i>")
+        pls_wait = await message.reply("<i>Forwarding message to all users... This may take some time.</i>")
 
-    for chat_id in query:
-        try:
-            sent_msg = await forward_msg.forward(chat_id)
-            successful += 1
-
-            # Try to pin the message
-            
-        except FloodWait as e:
-            await asyncio.sleep(e.x)
-            sent_msg = await forward_msg.forward(chat_id)
-            successful += 1
+        for chat_id in query:
             try:
-                await client.pin_chat_message(chat_id, sent_msg.id)
-            except ChatAdminRequired:
-                print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+                sent_msg = await forward_msg.forward(chat_id)
+                successful += 1
 
-        except UserIsBlocked:
-            await del_user(chat_id)
-            blocked += 1
-        except InputUserDeactivated:
-            await del_user(chat_id)
-            deleted += 1
-        except Exception as e:
-            print(f"Error sending to {chat_id}: {e}")
-            unsuccessful += 1
-            continue
+                # Try to pin the message
+            
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                sent_msg = await forward_msg.forward(chat_id)
+                successful += 1
+                try:
+                    await client.pin_chat_message(chat_id, sent_msg.id)
+                 except ChatAdminRequired:
+                     print(f"Cannot pin message in {chat_id}, bot is not an admin.")
 
-    status = f"""<b><u>✅ Forward Broadcast Completed</u></b>
+             except UserIsBlocked:
+                await del_user(chat_id)
+                blocked += 1
+            except InputUserDeactivated:
+                await del_user(chat_id)
+                deleted += 1
+            except Exception as e:
+                print(f"Error sending to {chat_id}: {e}")
+                unsuccessful += 1
+                continue
 
-<b>Total Users :</b> <code>{total}</code>
-<b>Successful :</b> <code>{successful}</code>
-<b>Blocked Users :</b> <code>{blocked}</code>
-<b>Deleted Accounts :</b> <code>{deleted}</code>
-<b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
+        status = f"""<b><u>✅ Forward Broadcast Completed</u></b>
 
-    return await pls_wait.edit(status)
+    <b>Total Users :</b> <code>{total}</code>
+    <b>Successful :</b> <code>{successful}</code>
+    <b>Blocked Users :</b> <code>{blocked}</code>
+    <b>Deleted Accounts :</b> <code>{deleted}</code>
+    <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
+
+        return await pls_wait.edit(status)
+else:
+    await message.reply_text("You are not the authorized user!")
 
 @Bot.on_message(filters.command('id') & filters.private)
 @Bot.on_message(filters.command('id') & filters.group)
