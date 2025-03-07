@@ -106,6 +106,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     elif data.startswith("confirm_save_autodel_"):
         await refresh_database()
         await refresh_db_handler()
+        await refresh_auto_delete_time()
         await refresh_force_sub_channels()
         new_auto_delete_time = int(data.split("_")[-1])
         set_auto_delete_time(new_auto_delete_time)
