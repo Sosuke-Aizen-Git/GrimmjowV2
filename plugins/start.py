@@ -186,8 +186,8 @@ async def not_joined(client: Client, message: Message):
     # User has joined all channels, proceed with start command
     await start_command(client, message)
 
-@Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS + get_admins()))
-@Bot.on_message(filters.command('users') & filters.group & filters.user(ADMINS + get_admins()))
+@Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS + (get_admins())))
+@Bot.on_message(filters.command('users') & filters.group & filters.user(ADMINS + (get_admins())))
 async def get_users(client: Bot, message: Message):
     msg = await client.send_message(chat_id=message.chat.id, text="Processing...")
     users = await full_userbase()
