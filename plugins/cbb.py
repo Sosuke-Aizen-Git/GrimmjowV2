@@ -14,6 +14,7 @@ from asyncio import sleep
 
 @Bot.on_message(filters.command("help"))
 async def help_command(client, message):
+    await react_to_message(message,"👍")
     buttons = [
         [
             InlineKeyboardButton("Get Link", callback_data="get_link"),
