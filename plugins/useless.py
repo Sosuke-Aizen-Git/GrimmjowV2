@@ -3,7 +3,7 @@ from pyrogram.types import Message
 from pyrogram import filters
 from datetime import datetime
 from helper_func import get_readable_time
-
+from config import ADMINS
 
 
 @Bot.on_message(filters.command('stats') & filters.user(ADMINS))
