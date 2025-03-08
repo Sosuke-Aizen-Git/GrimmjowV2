@@ -4,7 +4,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
 from bot import Bot
-from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CH[...]
 from helper_func import subscribed, encode, decode, get_messages
 from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
 from database.database import add_user, del_user, full_userbase, present_user
@@ -12,7 +12,6 @@ from plugins.cbb import check_force_sub   # Import the check_force_sub function
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import pymongo
 import random  # Import random to select a random photo
-
 
 file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
@@ -94,7 +93,7 @@ async def start_command(client: Client, message: Message):
             except:
                 pass
 
-        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.")
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or O[...]")
 
         # Schedule the file deletion
         asyncio.create_task(delete_files(madflix_msgs, client, k))
@@ -194,7 +193,6 @@ async def get_users(client: Bot, message: Message):
     else:
         await message.reply_text("You are not an authorized user!")
 
-
 @Bot.on_message(filters.private & filters.command('broadcast'))
 async def send_text(client: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
@@ -269,6 +267,7 @@ async def force_subs(client, message):
         await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
     else:
         await message.reply_text("You are not an authorized user!")
+
 # Function to handle file deletion
 async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
@@ -281,7 +280,6 @@ async def delete_files(messages, client, k):
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
-
 
 @Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
@@ -307,7 +305,6 @@ async def list_admins(client, message):
         await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
     else:
         await message.reply_text("You are not the authorized user!")
-
 
 @Client.on_message(filters.private & filters.command("fpbroadcast"))
 async def forward_broadcast(client, message):
@@ -385,13 +382,11 @@ async def get_id(client: Bot, message: Message):
 # Add this import statement at the top if not already present
 from config import FILE_AUTO_DELETE
 
-
 # Add the following function in `start.py` to handle the /autodel command
 @Bot.on_message(filters.command('autodel') & filters.private)
 @Bot.on_message(filters.command('autodel') & filters.group)
 async def autodel_command(client: Client, message: Message):
     await message.reply_text(f"The current auto delete timer is set to {(get_auto_delete_time())} seconds.")
-
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
