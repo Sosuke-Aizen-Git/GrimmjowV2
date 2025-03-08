@@ -133,7 +133,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     elif data == "fsub":
         await query.message.edit_text(
-            text="/add_fsub <Index> <Channel ID> - Set a force sub channel (Sudo only)",
+            text="/add_fsub {Index} {Channel ID} - Set a force sub channel (Sudo only)",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("⬅ Back", callback_data="back_to_help"),
                  InlineKeyboardButton("❌ Close", callback_data="close")]
