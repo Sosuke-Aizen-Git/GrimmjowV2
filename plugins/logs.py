@@ -1,4 +1,4 @@
-from pyrofork import Client, filters
+from pyrogram import Client, filters
 from config import OWNER_ID, SUDO_USERS
 
 @Client.on_message(filters.command("logs") & filters.private)
