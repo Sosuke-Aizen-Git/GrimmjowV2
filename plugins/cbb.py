@@ -215,11 +215,17 @@ async def set_auto_delete_time_command(client, message):
 @Bot.on_message(filters.command("addadmin") & filters.user([OWNER_ID] + SUDO_USERS))
 async def add_admin_command(client, message):
     try:
-        _, user_identifier = message.text.split()
-        user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
+        if message.reply_to_message:
+            user = message.reply_to_message.from_user
+            user_id = user.id
+            user_name = user.first_name
+        else:
+            _, user_identifier = message.text.split()
+            user_id = int(user_identifier) if user_identifier.isdigit() else (await client.get_users(user_identifier)).id
+            user_name = user_identifier
 
         await message.reply(
-            f"Add admin {user_identifier}?",
+            f"Add admin {user_name}?",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_admin_{user_id}")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
@@ -228,18 +234,26 @@ async def add_admin_command(client, message):
     except Exception as e:
         await message.reply(f"Error: {e}")
 
+
 @Bot.on_message(filters.command("rmadmin") & filters.user([OWNER_ID] + SUDO_USERS))
 async def remove_admin_command(client, message):
     try:
-        _, user_identifier = message.text.split()
-        if user_identifier.isdigit():
-            user_id = int(user_identifier)
-        else:
-            user = await client.get_users(user_identifier)
+        if message.reply_to_message:
+            user = message.reply_to_message.from_user
             user_id = user.id
+            user_name = user.first_name
+        else:
+            _, user_identifier = message.text.split()
+            if user_identifier.isdigit():
+                user_id = int(user_identifier)
+                user_name = user_identifier
+            else:
+                user = await client.get_users(user_identifier)
+                user_id = user.id
+                user_name = user_identifier
 
         await message.reply(
-            f"Are you sure you want to remove admin {user_identifier}?",
+            f"Are you sure you want to remove admin {user_name}?",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_remove_admin_{user_id}")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
@@ -248,6 +262,7 @@ async def remove_admin_command(client, message):
 
     except Exception as e:
         await message.reply(f"Error: {e}")
+
 
 async def check_force_sub(client, user_id):
     channels = [get_force_sub_channel(i) for i in range(1, 5)]
