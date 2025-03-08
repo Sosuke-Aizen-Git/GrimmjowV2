@@ -138,10 +138,18 @@ async def not_joined(client: Client, message: Message):
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
-    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
-    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
-    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
-    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
+    async def get_invite_link(channel_id):
+        chat = await client.get_chat(channel_id)
+        if chat.type == 'private':
+            invite_link = await client.create_chat_invite_link(chat_id=channel_id, creates_join_request=True)
+        else:
+            invite_link = await client.create_chat_invite_link(chat_id=channel_id)
+        return invite_link.invite_link
+
+    client.invitelink = await get_invite_link(get_force_sub_channel(1)) if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = await get_invite_link(get_force_sub_channel(2)) if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = await get_invite_link(get_force_sub_channel(3)) if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = await get_invite_link(get_force_sub_channel(4)) if FORCE_SUB_CHANNEL_4 else None
 
     buttons = [
         [
@@ -182,6 +190,9 @@ async def not_joined(client: Client, message: Message):
             disable_web_page_preview=True
         )
         return
+
+    # User has joined all channels, proceed with start command
+    await start_command(client, message)
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
