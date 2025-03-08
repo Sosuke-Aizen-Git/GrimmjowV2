@@ -1,9 +1,9 @@
 import asyncio
 import os
 import signal
-from pyrofork import filters, Client
-from pyrofork.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from pyrofork.errors import FloodWait
+from pyrogram import filters, Client
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.errors import FloodWait
 from bot import Bot
 from config import ADMINS, OWNER_ID, SUDO_USERS, CHANNEL_ID, DISABLE_CHANNEL_BUTTON
 from database.db_handler import get_admins
