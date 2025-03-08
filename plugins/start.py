@@ -248,6 +248,7 @@ async def send_text(client: Bot, message: Message):
 
 @Client.on_message(filters.command("fsubs"))
 async def force_subs(client, message):
+    temp_mssg = await message.reply("Ruk ek sec...")
     if message.from_user.id in get_admins() + SUDO_USERS:
         channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
 
@@ -269,8 +270,10 @@ async def force_subs(client, message):
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
+        await temp_mssg.delete()
     else:
         await message.reply_text("You are not an authorized user!")
+        await temp_mssg.delete()
 # Function to handle file deletion
 async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
