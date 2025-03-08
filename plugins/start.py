@@ -26,6 +26,7 @@ photos = [
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 @Bot.on_message(filters.command('start') & filters.group & subscribed)
 async def start_command(client: Client, message: Message):
+    await message.react("👍")
     id = message.from_user.id
     if not await present_user(id):
         try:
