@@ -311,7 +311,7 @@ async def list_admins(client, message):
 
         await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
     else:
-        await message.reply_text("You are not the authorized user!")
+        await message.reply_text("You are not an authorized user!")
 
 
 @Client.on_message(filters.private & filters.command("fpbroadcast"))
