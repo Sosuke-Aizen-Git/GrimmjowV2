@@ -259,33 +259,41 @@ async def send_text(client: Bot, message: Message):
             unsuccessful = 0
 
             pls_wait = await message.reply("<i>PBroadcasting Message.. This will Take Some Time</i>")
+            
             for chat_id in query:
                 try:
                     sent_msg = await broadcast_msg.copy(chat_id)
                     successful += 1
-                    if chat_id > 0:  # Only pin in private chats
+                    
+                    # Pin the message in private chats (chat_id > 0 ensures it's a user chat)
+                    if chat_id > 0:
                         try:
                             await client.pin_chat_message(chat_id, sent_msg.id)
-                        except ChatAdminRequired:
-                            print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+                        except Exception as e:
+                            print(f"Failed to pin message in {chat_id}: {e}")
+
                 except FloodWait as e:
                     await asyncio.sleep(e.x)
-                    sent_msg = await broadcast_msg.copy(chat_id)
-                    successful += 1
-                    if chat_id > 0:  # Only pin in private chats
-                        try:
-                            await client.pin_chat_message(chat_id, sent_msg.id)
-                        except ChatAdminRequired:
-                            print(f"Cannot pin message in {chat_id}, bot is not an admin.")
+                    try:
+                        sent_msg = await broadcast_msg.copy(chat_id)
+                        successful += 1
+                        if chat_id > 0:
+                            try:
+                                await client.pin_chat_message(chat_id, sent_msg.id)
+                            except Exception as e:
+                                print(f"Failed to pin message in {chat_id}: {e}")
+                    except Exception:
+                        unsuccessful += 1
+
                 except UserIsBlocked:
                     await del_user(chat_id)
                     blocked += 1
                 except InputUserDeactivated:
                     await del_user(chat_id)
                     deleted += 1
-                except:
+                except Exception:
                     unsuccessful += 1
-                    pass
+
                 total += 1
 
             status = f"""<b><u>Broadcast Completed</u></b>
@@ -299,7 +307,7 @@ async def send_text(client: Bot, message: Message):
             return await pls_wait.edit(status)
 
         else:
-            msg = await message.reply("Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
+            msg = await message.reply("Use This Command As A Reply To Any Telegram Message Without Any Spaces.")
             await asyncio.sleep(8)
             await msg.delete()
     else:
