@@ -1,4 +1,4 @@
-from pyrofork.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Function to update the button state to "Saved" after restart
 async def update_saved_button_state(saving_message):
