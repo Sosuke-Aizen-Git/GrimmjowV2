@@ -175,7 +175,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             ]
         ]
         await query.message.edit_text(  # FIXED (was using edit_caption by mistake)
-            text="Here are the available commands:",
+            text="<blockquote>Here are the available commands:</blockquote>",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
