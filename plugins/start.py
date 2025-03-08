@@ -273,6 +273,10 @@ async def send_text(client: Bot, message: Message):
                     sent_msg = await broadcast_msg.copy(chat_id)
                     successful += 1
                     if chat_id > 0:  # Only pin in private chats
+                        try:
+                            await client.pin_chat_message(chat_id, sent_msg.id)
+                        except ChatAdminRequired:
+                            print(f"Cannot pin message in {chat_id}, bot is not an admin.")
                 except UserIsBlocked:
                     await del_user(chat_id)
                     blocked += 1
@@ -300,7 +304,6 @@ async def send_text(client: Bot, message: Message):
             await msg.delete()
     else:
         await message.reply_text("You are not an authorized user!")
-
 
 @Client.on_message(filters.command("fsubs"))
 async def force_subs(client, message):
