@@ -1,4 +1,4 @@
-from pyrofork import filters, __version__
+from pyrogram import filters, __version__
 from bot import Bot
 import pymongo
 from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME
@@ -8,19 +8,12 @@ from database.db_handler import (
 )
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import random
-from pyrofork.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from asyncio import sleep
 
-# Function to react to messages
-async def react_to_message(message: Message, emoji: str):
-    try:
-        await message.react(emoji)
-    except Exception as e:
-        print(f"Failed to react: {e}")  # Print error if reaction fails
 
 @Bot.on_message(filters.command("help"))
 async def help_command(client, message):
-    await react_to_message(message,"👍")
     buttons = [
         [
             InlineKeyboardButton("Get Link", callback_data="get_link"),
