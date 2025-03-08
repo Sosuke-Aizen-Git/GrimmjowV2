@@ -21,7 +21,7 @@ async def restart_bot(client: Client, message: Message):
     os.kill(os.getpid(), signal.SIGINT)
     redeploy_bot()
 
-@Bot.on_message(filters.private & filters.user(ADMINS) & ~filters.command(['start','users','broadcast','batch','genlink','stats', 'fsubs', 'admins', 'fpbroadcast', 'id', 'add_fsub', 'refresh', 'restart', 'autodel', 'setautodel', 'addadmin', 'rmadmin', 'logs', 'help']))
+@Bot.on_message(filters.private & filters.user(ADMINS) & ~filters.command(['start','users','broadcast','batch','genlink','stats', 'fsubs', 'admins', 'fpbroadcast', 'id', 'add_fsub', 'refresh', 'restart', 'autodel', 'setautodel', 'addadmin', 'rmadmin', 'logs', 'help', 'pbroadcast']))
 async def channel_post(client: Client, message: Message):
     reply_text = await message.reply_text("Please Wait...!", quote = True)
     try:
