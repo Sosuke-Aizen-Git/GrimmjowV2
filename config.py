@@ -1,16 +1,22 @@
+from database.db_handler import get_force_sub_channel, get_auto_delete_time, get_admins
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from database.db_handler import get_force_sub_channel, get_auto_delete_time, get_admins
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "7295673972:AAGz3L2ArpAd1YLx5frjGrl2oU2_oPL7fzY")
-API_ID = int(os.environ.get("API_ID", "20420188"))
-API_HASH = os.environ.get("API_HASH", "ac372bd945f5773afe0b714c6429039b")
+
+
+
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7796253868:AAH_rB27IvdW-jnIbWu7631QzO_DRwAbp4U")
+API_ID = int(os.environ.get("API_ID", "29547761"))
+API_HASH = os.environ.get("API_HASH", "b67055bfe5d0cab29e31297c453ae9a8")
+
+
 OWNER_ID = int(os.environ.get("OWNER_ID", "1993048420"))
-DB_URL = os.environ.get("DB_URL", "mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-DB_NAME = os.environ.get("DB_NAME", "sahil")
+DB_URL = os.environ.get("DB_URL", "mongodb+srv://niksharma92297:redhood@cluster0.6tegn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+DB_NAME = os.environ.get("DB_NAME", "DBFalsh")
 
-CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002121888464"))
+
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002477094584"))
 
 FORCE_SUB_CHANNEL_1 = get_force_sub_channel(1)
 FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
