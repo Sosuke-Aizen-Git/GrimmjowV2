@@ -15,7 +15,7 @@ import random  # Import random to select a random photo
 
 madflixofficials = FILE_AUTO_DELETE
 jishudeveloper = madflixofficials
-file_auto_delete = humanize.naturaldelta(jishudeveloper)
+file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
 # List of photo URLs
 photos = [
