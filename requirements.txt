@@ -1,7 +1,6 @@
 pyrofork
 flask
 TgCrypto
-pyromod
 pymongo
 dnspython
 aiohttp
