@@ -132,10 +132,8 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start') & filters.group)
 async def not_joined(client: Client, message: Message):
     await message.react("👍")
-    # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
 
-    # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
     async def get_invite_link(channel_id):
@@ -173,9 +171,8 @@ async def not_joined(client: Client, message: Message):
     except IndexError:
         pass
 
-    await temp_msg.delete()  # Delete the "Please Wait..." message
+    await temp_msg.delete()
 
-    # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
         await message.reply(
             text=FORCE_MSG.format(
@@ -191,12 +188,10 @@ async def not_joined(client: Client, message: Message):
         )
         return
 
-    # User has joined all channels, proceed with start command
     await start_command(client, message)
 
-    # User has joined all channels, proceed with start command
-    await start_command(client, message)
-
+    
+    
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
 async def get_users(client: Bot, message: Message):
