@@ -285,8 +285,6 @@ async def delete_files(messages, client, k):
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
-    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
-
 
 @Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
