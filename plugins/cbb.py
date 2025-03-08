@@ -14,6 +14,7 @@ from asyncio import sleep
 
 @Bot.on_message(filters.command("help"))
 async def help_command(client, message):
+    await message.react("👍")
     buttons = [
         [
             InlineKeyboardButton("Get Link", callback_data="get_link"),
@@ -32,7 +33,7 @@ async def help_command(client, message):
     await client.send_photo(
         chat_id=message.chat.id,
         photo=random.choice(photos),
-        caption="Here are the available commands:",
+        caption="<blockquote>Here are the available commands:</blockquote>",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
