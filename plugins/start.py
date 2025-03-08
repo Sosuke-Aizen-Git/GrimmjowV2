@@ -131,6 +131,7 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start') & filters.private)
 @Bot.on_message(filters.command('start') & filters.group)
 async def not_joined(client: Client, message: Message):
+    await message.react("👍")
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
 
