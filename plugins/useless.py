@@ -23,9 +23,13 @@ async def stats(bot: Bot, message: Message):
     total_users_count = len(await full_userbase())
 
     status_message = (
-        f"```Bot Status\n⏳ Bot Uptime: {time}⚡️ Current Ping: {ping} ms👤 Total Users: {total_users_count}```"
+        "<b>Bot Status</b>\n\n"
+        f"<blockquote>⏳ Bot Uptime: {time}</blockquote>\n"
+        f"<blockquote>⚡️ Current Ping: {ping} ms</blockquote>\n"
+        f"<blockquote>👤 Total Users: {total_users_count}</blockquote>"
     )
     await message.reply(status_message)
+
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
