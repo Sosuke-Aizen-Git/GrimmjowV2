@@ -23,10 +23,7 @@ async def stats(bot: Bot, message: Message):
     total_users_count = len(await full_userbase())
 
     status_message = (
-        "```Bot Status\n"
-        f"⏳ Bot Uptime: {time}\n"
-        f"⚡️ Current Ping: {ping} ms\n"
-        f"👤 Total Users: {total_users_count}```"
+        f"```Bot Status\n⏳ Bot Uptime: {time}⚡️ Current Ping: {ping} ms👤 Total Users: {total_users_count}```"
     )
     await message.reply(status_message)
 
