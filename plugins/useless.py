@@ -16,7 +16,7 @@ from database.db_handler import get_admins
 def progress_bar(percentage, size=10):
     filled = round(percentage / 10)  # Scale to fit the bar size
     bar = "█" * filled + "░" * (size - filled)  # Create bar with filled & empty blocks
-    return f"[{bar}] {percentage:.1f}%"
+    return f"<code>[{bar}] {percentage:.1f}%</code>"
 
 async def get_ping(bot):
     start = time.time()
@@ -59,26 +59,26 @@ async def stats(bot: Bot, message: Message):
 
         # Status message with progress bars
         status_message = f"""
-**📊 BOT STATISTICS:**
-**➤ Uptime:** `{uptime}`
-**➤ Ping:** `{ping} ms`
-**➤ Total Users:** `{total_users_count}`
+<blockquote>📊 <b>BOT STATISTICS</b></blockquote>
+<b>➤ Uptime:</b> <code>{uptime}</code>
+<b>➤ Ping:</b> <code>{ping} ms</code>
+<b>➤ Total Users:</b> <code>{total_users_count}</code>
 
-**📌 CPU Usage:** `{cpu_usage}%`
+<b>📌 CPU Usage:</b> <code>{cpu_usage}%</code>
 {progress_bar(cpu_usage)}
-• **CPU Frequency:** `{cpu_freq} MHz`
+• <b>CPU Frequency:</b> <code>{cpu_freq} MHz</code>
 
-**📌 RAM Usage:** `{ram_usage}%`
+<b>📌 RAM Usage:</b> <code>{ram_usage}%</code>
 {progress_bar(ram_usage)}
-• **Total RAM:** `{total_ram} GB`
-• **Free RAM:** `{free_ram} GB`
-• **Used RAM:** `{used_ram} GB`
+• <b>Total RAM:</b> <code>{total_ram} GB</code>
+• <b>Free RAM:</b> <code>{free_ram} GB</code>
+• <b>Used RAM:</b> <code>{used_ram} GB</code>
 
-**📌 ROM Usage:** `{rom_usage}%`
+<b>📌 ROM Usage:</b> <code>{rom_usage}%</code>
 {progress_bar(rom_usage)}
-• **Total ROM:** `{total_rom} GB`
-• **Free ROM:** `{free_rom} GB`
-• **Used ROM:** `{used_rom} GB`
+• <b>Total ROM:</b> <code>{total_rom} GB</code>
+• <b>Free ROM:</b> <code>{free_rom} GB</code>
+• <b>Used ROM:</b> <code>{used_rom} GB</code>
 """
 
         # Select a random image from the list
@@ -86,8 +86,9 @@ async def stats(bot: Bot, message: Message):
 
         await message.reply_photo(
             photo=random_image,
-            caption=status_message
+            caption=status_message,
+            parse_mode="html"
         )
         await sticker.delete()
     else:
-        await message.reply_text("You are not an authorized user!")
+        await message.reply_text("<b>You are not an authorized user!</b>", parse_mode="html")
