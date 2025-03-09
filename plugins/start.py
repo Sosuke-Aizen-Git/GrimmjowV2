@@ -132,22 +132,16 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start') & filters.group)
 async def not_joined(client: Client, message: Message):
     await message.react("👎")
+    # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
 
+    # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
-    async def get_invite_link(channel_id):
-        chat = await client.get_chat(channel_id)
-        if chat.type == 'private':
-            invite_link = await client.create_chat_invite_link(chat_id=channel_id, creates_join_request=True)
-        else:
-            invite_link = await client.create_chat_invite_link(chat_id=channel_id)
-        return invite_link.invite_link
-
-    client.invitelink = await get_invite_link(get_force_sub_channel(1)) if get_force_sub_channel(1) else None
-    client.invitelink2 = await get_invite_link(get_force_sub_channel(2)) if get_force_sub_channel(2) else None
-    client.invitelink3 = await get_invite_link(get_force_sub_channel(3)) if get_force_sub_channel(3) else None
-    client.invitelink4 = await get_invite_link(get_force_sub_channel(4)) if get_force_sub_channel(4) else None
+    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
 
     buttons = [
         [
@@ -171,24 +165,7 @@ async def not_joined(client: Client, message: Message):
     except IndexError:
         pass
 
-    await temp_msg.delete()
-
-    if not await check_force_sub(client, message.from_user.id):
-        await message.reply(
-            text=FORCE_MSG.format(
-                first=message.from_user.first_name,
-                last=message.from_user.last_name,
-                username=None if not message.from_user.username else '@' + message.from_user.username,
-                mention=message.from_user.mention,
-                id=message.from_user.id
-            ),
-            reply_markup=InlineKeyboardMarkup(buttons),
-            quote=True,
-            disable_web_page_preview=True
-        )
-        return
-
-    await start_command(client, message)
+    await temp_msg.delete()  # Delete the "Please Wait..." message
 
     
     
