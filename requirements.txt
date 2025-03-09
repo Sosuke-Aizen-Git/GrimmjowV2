@@ -1,4 +1,5 @@
 pyrofork
+psutil
 flask
 TgCrypto
 pymongo
