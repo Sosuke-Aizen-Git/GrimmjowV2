@@ -93,23 +93,31 @@ async def stats(bot: Bot, message: Message):
         # Select a random image from the list
         random_image = random.choice(PHOTOS)
 
-        # Inline button for refreshing stats
-        keyboard = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")]]
-        )
+        # Inline buttons for refreshing and closing stats
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")],
+            [InlineKeyboardButton("❌ Close", callback_data="close_stats")]
+        ])
 
         sent_message = await message.reply_photo(
             photo=random_image,
             caption=status_message,
+            parse_mode="html",
             reply_markup=keyboard
         )
         await sticker.delete()
     else:
-        await message.reply_text("<b>You are not an authorized user!</b>")
+        await message.reply_text("<b>You are not an authorized user!</b>", parse_mode="html")
 
 @Bot.on_callback_query(filters.regex("refresh_stats"))
 async def refresh_stats(bot: Client, query: CallbackQuery):
     user_id = query.from_user.id
+
+    # Check if user is authorized
+    if user_id not in get_admins() + SUDO_USERS:
+        await query.answer("❌ You can't use this!", show_alert=True)
+        return
+
     current_time = time.time()
 
     # Check if user is in cooldown
@@ -129,8 +137,23 @@ async def refresh_stats(bot: Client, query: CallbackQuery):
     # Edit the message with new stats
     await query.message.edit_caption(
         caption=updated_stats,
-        reply_markup=InlineKeyboardMarkup(
-            [[InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")]]
-        )
+        parse_mode="html",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")],
+            [InlineKeyboardButton("❌ Close", callback_data="close_stats")]
+        ])
     )
     await query.answer("✅ Stats updated!")
+
+@Bot.on_callback_query(filters.regex("close_stats"))
+async def close_stats(bot: Client, query: CallbackQuery):
+    user_id = query.from_user.id
+
+    # Check if user is authorized
+    if user_id not in get_admins() + SUDO_USERS:
+        await query.answer("❌ You can't use this!", show_alert=True)
+        return
+
+    # Delete the stats message
+    await query.message.delete()
+    await query.answer("🗑️ Stats message deleted!")
