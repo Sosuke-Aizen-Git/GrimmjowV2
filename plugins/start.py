@@ -248,81 +248,57 @@ async def send_text(client: Bot, message: Message):
 
 
 @Bot.on_message(filters.private & filters.command('pbroadcast'))
-async def pbroadcast_command(client: Bot, message: Message):
+async def send_text(client: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
-        if not message.reply_to_message:
-            return await message.reply("Use this command as a reply to any message to broadcast.")
+        if message.reply_to_message:
+            query = await full_userbase()
+            broadcast_msg = message.reply_to_message
+            total = 0
+            successful = 0
+            blocked = 0
+            deleted = 0
+            unsuccessful = 0
 
-        # Inline buttons for selecting broadcast type
-        buttons = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("📌 Pin Broadcast", callback_data=f"pin_broadcast_{message.from_user.id}"),
-                    InlineKeyboardButton("📤 Normal Broadcast", callback_data=f"normal_broadcast_{message.from_user.id}")
-                ]
-            ]
-        )
+            pls_wait = await message.reply("<i>PBroadcasting Message.. This will Take Some Time</i>")
+            for chat_id in query:
+                try:
+                    sent_msg = await broadcast_msg.copy(chat_id)
 
-        await message.reply("Choose the broadcast type:", reply_markup=buttons)
+                    successful += 1
+
+                    await client.pin_chat_message(chat_id=chat_id, message_id=sent_msg.id, both_sides=True)
+
+                except FloodWait as e:
+                    await asyncio.sleep(e.x)
+                    await broadcast_msg.copy(chat_id)
+                    successful += 1
+                except UserIsBlocked:
+                    await del_user(chat_id)
+                    blocked += 1
+                except InputUserDeactivated:
+                    await del_user(chat_id)
+                    deleted += 1
+                except:
+                    unsuccessful += 1
+                    pass
+                total += 1
+
+            status = f"""<b><u>Broadcast Completed</u></b>
+
+    <b>Total Users :</b> <code>{total}</code>
+    <b>Successful :</b> <code>{successful}</code>
+    <b>Blocked Users :</b> <code>{blocked}</code>
+    <b>Deleted Accounts :</b> <code>{deleted}</code>
+    <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
+
+            return await pls_wait.edit(status)
+
+        else:
+            msg = await message.reply("Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
+            await asyncio.sleep(8)
+            await msg.delete()
     else:
         await message.reply_text("You are not an authorized user!")
-
-@Bot.on_callback_query(filters.regex(r'^(pin_broadcast|normal_broadcast)_(\d+)$'))
-async def handle_broadcast_choice(client: Bot, callback_query: CallbackQuery):
-    choice, user_id = callback_query.data.rsplit('_', 1)
-    user_id = int(user_id)
-
-    if callback_query.from_user.id != user_id:
-        return await callback_query.answer("Not your query!", show_alert=True)
-
-    await callback_query.message.delete()
-    broadcast_msg = callback_query.message.reply_to_message
-    query = await full_userbase()
-    total = 0
-    successful = 0
-    blocked = 0
-    deleted = 0
-    unsuccessful = 0
-
-    # Add the message before the broadcast process
-    await callback_query.message.reply("The broadcast process is starting...")
-
-    pls_wait = await callback_query.message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
-    for chat_id in query:
-        try:
-            sent_msg = await broadcast_msg.copy(chat_id)
-            successful += 1
-
-            if choice == "pin_broadcast":
-                await client.pin_chat_message(chat_id=chat_id, message_id=sent_msg.id, both_sides=True)
-
-        except FloodWait as e:
-            await asyncio.sleep(e.x)
-            sent_msg = await broadcast_msg.copy(chat_id)
-            successful += 1
-            if choice == "pin_broadcast":
-                await client.pin_chat_message(chat_id=chat_id, message_id=sent_msg.id, both_sides=True)
-
-        except UserIsBlocked:
-            await del_user(chat_id)
-            blocked += 1
-        except InputUserDeactivated:
-            await del_user(chat_id)
-            deleted += 1
-        except:
-            unsuccessful += 1
-            pass
-        total += 1
-
-    status = f"""<b><u>Broadcast Completed</u></b>
-
-<b>Total Users :</b> <code>{total}</code>
-<b>Successful :</b> <code>{successful}</code>
-<b>Blocked Users :</b> <code>{blocked}</code>
-<b>Deleted Accounts :</b> <code>{deleted}</code>
-<b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
-
-    return await pls_wait.edit(status)
 
 
 @Client.on_message(filters.command("fsubs"))
