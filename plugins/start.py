@@ -161,7 +161,7 @@ async def not_joined(client: Client, message: Message):
 
     # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
-        await message.send_photo(
+        await message.reply_photo(
             chat_id=message.chat.id,
             photo=random_photo,
             caption=FORCE_MSG.format(
