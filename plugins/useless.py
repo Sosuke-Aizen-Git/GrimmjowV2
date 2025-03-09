@@ -19,7 +19,7 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 3)  # Round to 3 decimal places
 
-@Bot.on_message(filters.command('stats')) & filters.private)
+@Bot.on_message(filters.command('stats') & filters.private)
 async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
@@ -45,7 +45,7 @@ async def stats(bot: Bot, message: Message):
     else:
         await message.reply_text("You are not an authorized user!")
 
-@Bot.on_message(filters.command('stats')) & filters.group)
+@Bot.on_message(filters.command('stats') & filters.group)
 async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
