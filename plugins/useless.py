@@ -41,19 +41,20 @@ async def stats(bot: Bot, message: Message):
         # Select a random image from the list
         random_image = random.choice(photos)
 
-        # ✅ Apply message effect only if the chat is private
+        # ✅ Use message effect only in private chat
         if message.chat.type == "private":
             await message.reply_photo(
                 photo=random_image,
                 caption=status_message,
-                message_effect_id=5104841245755180586  # ✅ Effect in private chats
+                message_effect_id=5104841245755180586  # ✅ Effect only in DM
             )
         else:
             await message.reply_photo(
                 photo=random_image,
-                caption=status_message  # ❌ No effect in groups
+                caption=status_message  # ✅ Normal message in groups
             )
 
         await sticker.delete()
     else:
         await message.reply_text("You are not an authorized user!")
+        
