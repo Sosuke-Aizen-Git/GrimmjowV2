@@ -126,8 +126,8 @@ async def start_command(client: Client, message: Message):
         )
         return
 
-@Bot.on_message(filters.command('start') & filters.private)
-@Bot.on_message(filters.command('start') & filters.group)
+@Bot.on_message(filters.command('start'))
+@Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
     await message.react("👎")
     # Send "Please Wait..." message
