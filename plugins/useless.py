@@ -22,6 +22,7 @@ async def get_ping(bot):
 @Bot.on_message(filters.command('stats'))
 async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
+        sticker=await message.send_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
         now = datetime.now()
         delta = now - bot.uptime
         time = get_readable_time(delta.seconds)
@@ -37,5 +38,6 @@ async def stats(bot: Bot, message: Message):
             photo=random_image, 
             caption=status_message
         )
+        await sticker.delete()
     else:
         await message.reply_text("You are not an authorized user!")
