@@ -105,7 +105,7 @@ async def stats(bot: Bot, message: Message):
         )
         await sticker.delete()
     else:
-        await message.reply_text("<b>You are not an authorized user!</b>", parse_mode="html")
+        await message.reply_text("<b>You are not an authorized user!</b>")
 
 @Bot.on_callback_query(filters.regex("refresh_stats"))
 async def refresh_stats(bot: Client, query: CallbackQuery):
