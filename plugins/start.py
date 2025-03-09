@@ -247,7 +247,7 @@ async def send_text(client: Bot, message: Message):
         await message.reply_text("You are not an authorized user!")
 
 
-@Bot.on_message(filters.private & filters.command('broadcast'))
+@Bot.on_message(filters.private & filters.command('pbroadcast'))
 async def send_text(client: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         if message.reply_to_message:
@@ -259,7 +259,7 @@ async def send_text(client: Bot, message: Message):
             deleted = 0
             unsuccessful = 0
 
-            pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
+            pls_wait = await message.reply("<i>PBroadcasting Message.. This will Take Some Time</i>")
             for chat_id in query:
                 try:
                     await broadcast_msg.copy(chat_id)
