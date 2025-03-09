@@ -18,8 +18,8 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
 # List of photo URLs
 photos = [
-    "https://litter.catbox.moe/8ngis1.jpg",
-    "https://litter.catbox.moe/21bhag.jpg",
+    "https://litter.catbox.moe/npli8j.jpg",
+    "https://litter.catbox.moe/f8t3au.jpg",
     # Add more photo URLs as needed
 ]
 
