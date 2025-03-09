@@ -14,22 +14,24 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 3)  # Round to 3 decimal places
 
-@Bot.on_message(filters.command('stats') & filters.user(ADMINS))
+@Bot.on_message(filters.command('stats'))
 async def stats(bot: Bot, message: Message):
-    now = datetime.now()
-    delta = now - bot.uptime
-    time = get_readable_time(delta.seconds)
-    ping = await get_ping(bot)
-    total_users_count = len(await full_userbase())
+    if message.from_user.id in get_admins() + SUDO_USERS:
+        now = datetime.now()
+        delta = now - bot.uptime
+        time = get_readable_time(delta.seconds)
+        ping = await get_ping(bot)
+        total_users_count = len(await full_userbase())
 
-    status_message = (
-        "<b>Bot Status</b>\n\n"
-        f"<blockquote>⏳ Bot Uptime: {time}</blockquote>\n"
-        f"<blockquote>⚡️ Current Ping: {ping} ms</blockquote>\n"
-        f"<blockquote>👤 Total Users: {total_users_count}</blockquote>"
-    )
-    await message.reply(status_message)
-
+        status_message = (
+            "<b>Bot Status</b>\n\n"
+            f"<blockquote>⏳ Bot Uptime: {time}</blockquote>\n"
+            f"<blockquote>⚡️ Current Ping: {ping} ms</blockquote>\n"
+            f"<blockquote>👤 Total Users: {total_users_count}</blockquote>"
+        )
+        await message.reply(status_message)
+    else:
+        await message.reply_text("You are not an authorized user!")
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
