@@ -4,7 +4,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
 from bot import Bot
-from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME, PHOTOS
 from helper_func import subscribed, encode, decode, get_messages
 from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
 from database.database import add_user, del_user, full_userbase, present_user
@@ -16,12 +16,6 @@ import random  # Import random to select a random photo
 
 file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
-# List of photo URLs
-photos = [
-    "https://litter.catbox.moe/f8t3au.jpg",
-    "https://litter.catbox.moe/npli8j.jpg",
-    # Add more photo URLs as needed
-]
 
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
@@ -111,7 +105,7 @@ async def start_command(client: Client, message: Message):
         )
 
         # Select a random photo from the list
-        random_photo = random.choice(photos)
+        random_photo = random.choice(PHOTOS)
 
         await client.send_photo(
             chat_id=message.chat.id,
@@ -167,8 +161,10 @@ async def not_joined(client: Client, message: Message):
 
     # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
-        await message.reply(
-            text=FORCE_MSG.format(
+        await message.send_photo(
+            chat_id=message.chat.id,
+            photo=random_photo,
+            caption=FORCE_MSG.format(
                 first=message.from_user.first_name,
                 last=message.from_user.last_name,
                 username=None if not message.from_user.username else '@' + message.from_user.username,
