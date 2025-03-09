@@ -40,8 +40,8 @@ async def help_command(client, message):
 
 # Photo URLs
 photos = [
-    "https://litter.catbox.moe/21bhag.jpg",
-    "https://litter.catbox.moe/8ngis1.jpg",
+    "https://litter.catbox.moe/f8t3au.jpg",
+    "https://litter.catbox.moe/npli8j.jpg",
 ]
 
 @Bot.on_callback_query()
@@ -50,7 +50,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     if data == "about":
         await query.message.edit_text(
-            text=f"<b>🤖 Bot Name:</b> <a href='https://t.me/Anime_file_share669bot'>Grimmjow</a>\n"
+            text=f"<b>🤖 Bot Name:</b> <a href='https://t.me/Anime_file_share669bot'>Red hood</a>\n"
                  f"<b>📝 Language:</b> <a href='https://python.org'>Python 3</a>\n"
                  f"<b>📚 Library:</b> <a href='https://pyrogram.org'>Pyrogram {__version__}</a>",
             disable_web_page_preview=True,
