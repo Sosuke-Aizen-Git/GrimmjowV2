@@ -189,111 +189,75 @@ async def get_users(client: Bot, message: Message):
         await message.reply_text("You are not an authorized user!")
 
 
-@Bot.on_message(filters.private & filters.command('broadcast'))
-async def send_text(client: Bot, message: Message):
-    if message.from_user.id in get_admins() + SUDO_USERS:
-        if message.reply_to_message:
-            query = await full_userbase()
-            broadcast_msg = message.reply_to_message
-            total = 0
-            successful = 0
-            blocked = 0
-            deleted = 0
-            unsuccessful = 0
 
-            pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
-            for chat_id in query:
+async def broadcast_message(client, message, pin=False, forward=False):
+    if message.from_user.id not in get_admins() + SUDO_USERS:
+        return await message.reply_text("🚫 You are not an authorized user!")
+
+    if not message.reply_to_message:
+        return await message.reply("❌ Use this command as a reply to the message you want to broadcast.")
+
+    query = await full_userbase()
+    broadcast_msg = message.reply_to_message
+    total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
+
+    pls_wait = await message.reply("<i>Broadcasting message... Please wait.</i>")
+
+    for chat_id in query:
+        try:
+            if forward:
+                sent_msg = await broadcast_msg.forward(chat_id)
+            else:
+                sent_msg = await broadcast_msg.copy(chat_id)
+
+            successful += 1
+
+            if pin:
                 try:
-                    sent_msg = await broadcast_msg.copy(chat_id)
-                    
-                    successful += 1
-
-                    
-                except FloodWait as e:
-                    await asyncio.sleep(e.x)
-                    await broadcast_msg.copy(chat_id)
-                    successful += 1
-                except UserIsBlocked:
-                    await del_user(chat_id)
-                    blocked += 1
-                except InputUserDeactivated:
-                    await del_user(chat_id)
-                    deleted += 1
-                except:
-                    unsuccessful += 1
-                    pass
-                total += 1
-
-            status = f"""<b><u>Broadcast Completed</u></b>
-
-    <b>Total Users :</b> <code>{total}</code>
-    <b>Successful :</b> <code>{successful}</code>
-    <b>Blocked Users :</b> <code>{blocked}</code>
-    <b>Deleted Accounts :</b> <code>{deleted}</code>
-    <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
-
-            return await pls_wait.edit(status)
-
-        else:
-            msg = await message.reply("Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
-            await asyncio.sleep(8)
-            await msg.delete()
-    else:
-        await message.reply_text("You are not an authorized user!")
-
-
-@Bot.on_message(filters.private & filters.command('pbroadcast'))
-async def send_text(client: Bot, message: Message):
-    if message.from_user.id in get_admins() + SUDO_USERS:
-        if message.reply_to_message:
-            query = await full_userbase()
-            broadcast_msg = message.reply_to_message
-            total = 0
-            successful = 0
-            blocked = 0
-            deleted = 0
-            unsuccessful = 0
-
-            pls_wait = await message.reply("<i>PBroadcasting Message.. This will Take Some Time</i>")
-            for chat_id in query:
-                try:
-                    sent_msg = await broadcast_msg.copy(chat_id)
-
-                    successful += 1
-
                     await client.pin_chat_message(chat_id=chat_id, message_id=sent_msg.id, both_sides=True)
+                except Exception:
+                    pass  # Ignore pinning errors
 
-                except FloodWait as e:
-                    await asyncio.sleep(e.x)
-                    await broadcast_msg.copy(chat_id)
-                    successful += 1
-                except UserIsBlocked:
-                    await del_user(chat_id)
-                    blocked += 1
-                except InputUserDeactivated:
-                    await del_user(chat_id)
-                    deleted += 1
-                except:
-                    unsuccessful += 1
-                    pass
-                total += 1
+        except FloodWait as e:
+            await asyncio.sleep(e.x)
+            continue  # Retry after waiting
 
-            status = f"""<b><u>Broadcast Completed</u></b>
+        except UserIsBlocked:
+            await del_user(chat_id)
+            blocked += 1
 
-    <b>Total Users :</b> <code>{total}</code>
-    <b>Successful :</b> <code>{successful}</code>
-    <b>Blocked Users :</b> <code>{blocked}</code>
-    <b>Deleted Accounts :</b> <code>{deleted}</code>
-    <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
+        except InputUserDeactivated:
+            await del_user(chat_id)
+            deleted += 1
 
-            return await pls_wait.edit(status)
+        except Exception:
+            unsuccessful += 1
+            continue
 
-        else:
-            msg = await message.reply("Use This Command As A Reply To Any Telegram Message With Out Any Spaces.")
-            await asyncio.sleep(8)
-            await msg.delete()
-    else:
-        await message.reply_text("You are not an authorized user!")
+    status = f"""<b><u>✅ Broadcast Completed</u></b>
+
+<b>Total Users:</b> <code>{total}</code>
+<b>Successful:</b> <code>{successful}</code>
+<b>Blocked Users:</b> <code>{blocked}</code>
+<b>Deleted Accounts:</b> <code>{deleted}</code>
+<b>Unsuccessful:</b> <code>{unsuccessful}</code>"""
+
+    await pls_wait.edit(status)
+
+# Normal broadcast
+@Bot.on_message(filters.private & filters.command('broadcast'))
+async def send_text(client, message):
+    await broadcast_message(client, message, pin=False, forward=False)
+
+# Broadcast & pin message
+@Bot.on_message(filters.private & filters.command('pbroadcast'))
+async def send_pinned_broadcast(client, message):
+    await broadcast_message(client, message, pin=True, forward=False)
+
+# Forwarded message broadcast
+@Bot.on_message(filters.private & filters.command('fpbroadcast'))
+async def forward_broadcast(client, message):
+    await broadcast_message(client, message, pin=False, forward=True)
 
 
 @Client.on_message(filters.command("fsubs"))
@@ -364,53 +328,6 @@ async def list_admins(client, message):
         await message.reply_text("You are not the authorized user!")
 
 
-@Client.on_message(filters.private & filters.command("fpbroadcast"))
-async def forward_broadcast(client, message):
-    if message.from_user.id in get_admins() + SUDO_USERS:
-        if not message.reply_to_message:
-            return await message.reply("❌ Use this command as a reply to the message you want to forward.")
-
-        query = await full_userbase()
-        forward_msg = message.reply_to_message
-        total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
-
-        pls_wait = await message.reply("<i>Forwarding message to all users... This may take some time.</i>")
-
-        for chat_id in query:
-            try:
-                sent_msg = await forward_msg.forward(chat_id)
-                successful += 1
-
-                # Try to pin the message
-            
-            except FloodWait as e:
-                await asyncio.sleep(e.x)
-                sent_msg = await forward_msg.forward(chat_id)
-                successful += 1
-                
-                    
-            except UserIsBlocked:
-                await del_user(chat_id)
-                blocked += 1
-            except InputUserDeactivated:
-                await del_user(chat_id)
-                deleted += 1
-            except Exception as e:
-                print(f"Error sending to {chat_id}: {e}")
-                unsuccessful += 1
-                continue
-
-        status = f"""<b><u>✅ Forward Broadcast Completed</u></b>
-
-    <b>Total Users :</b> <code>{total}</code>
-    <b>Successful :</b> <code>{successful}</code>
-    <b>Blocked Users :</b> <code>{blocked}</code>
-    <b>Deleted Accounts :</b> <code>{deleted}</code>
-    <b>Unsuccessful :</b> <code>{unsuccessful}</code>"""
-
-        return await pls_wait.edit(status)
-    else:
-        await message.reply_text("You are not the authorized user!")
 
 @Bot.on_message(filters.command('id') & filters.private)
 @Bot.on_message(filters.command('id') & filters.group)
