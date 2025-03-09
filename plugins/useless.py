@@ -44,8 +44,12 @@ async def stats(bot: Bot, message: Message):
         # Send the image first
         await message.reply_photo(photo=random_image, caption=status_message)
 
-        # Send a separate message with the effect
-        await message.reply_text("✨ Status Updated!", message_effect_id=5046509860389126442)
+        # Use `bot.send_message()` to apply the effect
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="✨ Status Updated!",
+            message_effect_id=5046509860389126442  # ✅ Now correctly placed
+        )
 
         await sticker.delete()
     else:
