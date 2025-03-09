@@ -86,8 +86,7 @@ async def stats(bot: Bot, message: Message):
 
         await message.reply_photo(
             photo=random_image,
-            caption=status_message,
-            parse_mode="html"
+            caption=status_message
         )
         await sticker.delete()
     else:
