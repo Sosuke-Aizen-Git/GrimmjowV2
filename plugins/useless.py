@@ -46,10 +46,10 @@ async def stats(bot: Bot, message: Message):
 
         # Use `bot.send_message()` to apply the effect
         await bot.send_message(
-            chat_id=message.chat.id,
-            text="✨ Status Updated!",
-            message_effect_id=5046509860389126442  # ✅ Now correctly placed
-        )
+    chat_id=message.chat.id,
+    text="✨ Status Updated!",
+    **{"message_effect_id": 5046509860389126442}  # Pass as a keyword argument
+)
 
         await sticker.delete()
     else:
