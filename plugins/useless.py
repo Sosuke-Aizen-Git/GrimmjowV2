@@ -3,8 +3,9 @@ from pyrogram.types import Message
 from pyrogram import filters
 from datetime import datetime
 from helper_func import get_readable_time
-from config import ADMINS
+from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
+from database.db_handler import get_admins
 import time
 
 async def get_ping(bot):
