@@ -5,8 +5,8 @@ import shutil
 from datetime import datetime
 from config import PHOTOS
 from bot import Bot
-from pyrogram import filters
-from pyrogram.types import Message
+from pyrogram import filters, Client
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from helper_func import get_readable_time
 from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
@@ -25,40 +25,36 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 2)  # Round to 2 decimal places
 
-@Bot.on_message(filters.command('stats'))
-async def stats(bot: Bot, message: Message):
-    if message.from_user.id in get_admins() + SUDO_USERS:
-        sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
-        
-        # Bot Uptime Calculation
-        now = datetime.now()
-        delta = now - bot.uptime
-        uptime = get_readable_time(delta.seconds)
-        
-        # Get bot ping
-        ping = await get_ping(bot)
+async def get_bot_stats(bot):
+    # Bot Uptime Calculation
+    now = datetime.now()
+    delta = now - bot.uptime
+    uptime = get_readable_time(delta.seconds)
+    
+    # Get bot ping
+    ping = await get_ping(bot)
 
-        # Get total users count
-        total_users_count = len(await full_userbase())
+    # Get total users count
+    total_users_count = len(await full_userbase())
 
-        # System Stats
-        cpu_usage = psutil.cpu_percent()
-        cpu_freq = psutil.cpu_freq().current
+    # System Stats
+    cpu_usage = psutil.cpu_percent()
+    cpu_freq = psutil.cpu_freq().current
 
-        ram = psutil.virtual_memory()
-        total_ram = round(ram.total / (1024 ** 3), 2)
-        used_ram = round(ram.used / (1024 ** 3), 2)
-        free_ram = round(ram.available / (1024 ** 3), 2)
-        ram_usage = ram.percent
+    ram = psutil.virtual_memory()
+    total_ram = round(ram.total / (1024 ** 3), 2)
+    used_ram = round(ram.used / (1024 ** 3), 2)
+    free_ram = round(ram.available / (1024 ** 3), 2)
+    ram_usage = ram.percent
 
-        disk = shutil.disk_usage("/")
-        total_rom = round(disk.total / (1024 ** 3), 2)
-        used_rom = round(disk.used / (1024 ** 3), 2)
-        free_rom = round(disk.free / (1024 ** 3), 2)
-        rom_usage = round((used_rom / total_rom) * 100, 2)
+    disk = shutil.disk_usage("/")
+    total_rom = round(disk.total / (1024 ** 3), 2)
+    used_rom = round(disk.used / (1024 ** 3), 2)
+    free_rom = round(disk.free / (1024 ** 3), 2)
+    rom_usage = round((used_rom / total_rom) * 100, 2)
 
-        # Status message with progress bars
-        status_message = f"""
+    # Status message with progress bars
+    status_message = f"""
 <blockquote>📊 <b>BOT STATISTICS</b></blockquote>
 <b>➤ Uptime:</b> <code>{uptime}</code>
 <b>➤ Ping:</b> <code>{ping} ms</code>
@@ -81,13 +77,43 @@ async def stats(bot: Bot, message: Message):
 • <b>Used ROM:</b> <code>{used_rom} GB</code>
 """
 
+    return status_message
+
+@Bot.on_message(filters.command('stats'))
+async def stats(bot: Bot, message: Message):
+    if message.from_user.id in get_admins() + SUDO_USERS:
+        sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
+        
+        # Generate bot stats
+        status_message = await get_bot_stats(bot)
+
         # Select a random image from the list
         random_image = random.choice(PHOTOS)
 
-        await message.reply_photo(
+        # Inline button for refreshing stats
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")]]
+        )
+
+        sent_message = await message.reply_photo(
             photo=random_image,
-            caption=status_message
+            caption=status_message,
+            reply_markup=keyboard
         )
         await sticker.delete()
     else:
         await message.reply_text("<b>You are not an authorized user!</b>", parse_mode="html")
+
+@Bot.on_callback_query(filters.regex("refresh_stats"))
+async def refresh_stats(bot: Client, query: CallbackQuery):
+    # Update the statistics
+    updated_stats = await get_bot_stats(bot)
+
+    # Edit the message with new stats
+    await query.message.edit_caption(
+        caption=updated_stats,
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")]]
+        )
+    )
+    await query.answer("✅ Stats updated!")
