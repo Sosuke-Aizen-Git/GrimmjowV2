@@ -1,5 +1,5 @@
 import random
-from plugins.start import photos
+from plugins.start import PHOTOS
 import time
 from bot import Bot
 from pyrogram.types import Message
@@ -32,7 +32,7 @@ async def stats(bot: Bot, message: Message):
         status_message = f'<pre language="@RedHoodXbot Bot Status:">⏳ Bot Uptime: {time}\n⚡ Current Ping: {ping} ms\n👤 Total Users: {total_users_count}</pre>'
 
         # Select a random image from the list using random.choice()
-        random_image = random.choice(photos)
+        random_image = random.choice(PHOTOS)
 
         await message.reply_photo(
             photo=random_image, 
