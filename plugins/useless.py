@@ -30,16 +30,29 @@ async def stats(bot: Bot, message: Message):
         ping = await get_ping(bot)
         total_users_count = len(await full_userbase())
 
-        status_message = f'<pre language="@RedHoodXbot Bot Status:">⏳ Bot Uptime: {time}\n⚡ Current Ping: {ping} ms\n👤 Total Users: {total_users_count}</pre>'
+        status_message = (
+            f"<pre language='@RedHoodXbot Bot Status:'>"
+            f"⏳ Bot Uptime: {time}\n"
+            f"⚡ Current Ping: {ping} ms\n"
+            f"👤 Total Users: {total_users_count}"
+            f"</pre>"
+        )
 
         # Select a random image from the list
         random_image = random.choice(photos)
 
-        await message.reply_photo(
-            photo=random_image, 
-            caption=status_message,
-            message_effect_id=5104841245755180586  # ✅ Correctly placed
-        )
+        # ✅ Apply message effect only if the chat is private
+        if message.chat.type == "private":
+            await message.reply_photo(
+                photo=random_image,
+                caption=status_message,
+                message_effect_id=5104841245755180586  # ✅ Effect in private chats
+            )
+        else:
+            await message.reply_photo(
+                photo=random_image,
+                caption=status_message  # ❌ No effect in groups
+            )
 
         await sticker.delete()
     else:
