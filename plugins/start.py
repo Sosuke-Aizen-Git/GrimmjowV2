@@ -262,17 +262,16 @@ async def send_text(client: Bot, message: Message):
             pls_wait = await message.reply("<i>PBroadcasting Message.. This will Take Some Time</i>")
             for chat_id in query:
                 try:
-                    await broadcast_msg.copy(chat_id)
-                    successful += 1
-                except FloodWait as e:
-                    await asyncio.sleep(e.x)
-                    await broadcast_msg.copy(chat_id)
-                    successful += 1
                     sent_msg = await broadcast_msg.copy(chat_id)
 
                     successful += 1
 
                     await client.pin_chat_message(chat_id=chat_id, message_id=sent_msg.id, both_sides=True)
+
+                except FloodWait as e:
+                    await asyncio.sleep(e.x)
+                    await broadcast_msg.copy(chat_id)
+                    successful += 1
                 except UserIsBlocked:
                     await del_user(chat_id)
                     blocked += 1
