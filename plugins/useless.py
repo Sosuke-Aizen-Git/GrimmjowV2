@@ -30,26 +30,16 @@ async def stats(bot: Bot, message: Message):
         ping = await get_ping(bot)
         total_users_count = len(await full_userbase())
 
-        status_message = (
-            f"<pre language='@RedHoodXbot Bot Status:'>"
-            f"⏳ Bot Uptime: {time}\n"
-            f"⚡ Current Ping: {ping} ms\n"
-            f"👤 Total Users: {total_users_count}"
-            f"</pre>"
-        )
+        status_message = f'<pre language="@RedHoodXbot Bot Status:">⏳ Bot Uptime: {time}\n⚡ Current Ping: {ping} ms\n👤 Total Users: {total_users_count}</pre>'
 
         # Select a random image from the list
         random_image = random.choice(photos)
 
-        # Send the image first
-        await message.reply_photo(photo=random_image, caption=status_message)
-
-        # Use `bot.send_message()` to apply the effect
-        await bot.send_message(
-    chat_id=message.chat.id,
-    text="✨ Status Updated!",
-    **{"message_effect_id": 5046509860389126442}  # Pass as a keyword argument
-)
+        await message.reply_photo(
+            photo=random_image, 
+            caption=status_message,
+            message_effect_id=5046509860389126442  # ✅ Correctly placed
+        )
 
         await sticker.delete()
     else:
