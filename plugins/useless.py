@@ -24,7 +24,7 @@ async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         now = datetime.now()
         delta = now - bot.uptime
-        uptime = get_readable_time(delta.seconds)
+        time = get_readable_time(delta.seconds)
         ping = await get_ping(bot)
         total_users_count = len(await full_userbase())
 
