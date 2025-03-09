@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 client = MongoClient("mongodb+srv://niksharma92297:redhood@cluster0.6tegn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-db = client["DBFlash"]
+db = client["DBFalsh"]
 
 def get_force_sub_channel(index):
     doc = db.config.find_one({"_id": "force_sub_channels"})
@@ -19,7 +19,7 @@ def set_force_sub_channel(index, new_channel_id):
 async def refresh_db_handler():
     global client, db
     client = MongoClient("mongodb+srv://niksharma92297:redhood@cluster0.6tegn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    db = client["DBFlash"]
+    db = client["DBFalsh"]
 
 def get_auto_delete_time():
     doc = db.config.find_one({"_id": "auto_delete_time"})
