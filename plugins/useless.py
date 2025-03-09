@@ -1,3 +1,24 @@
+import random
+from plugins.start import photos
+import time
+from bot import Bot
+from pyrogram.types import Message
+from pyrogram import filters
+from datetime import datetime
+from helper_func import get_readable_time
+from config import ADMINS, SUDO_USERS
+from database.database import full_userbase
+from database.db_handler import get_admins
+
+# List of images (local file paths or URLs)
+
+async def get_ping(bot):
+    start = time.time()
+    await bot.get_me()
+    end = time.time()
+    ping = (end - start) * 1000  # Convert to milliseconds
+    return round(ping, 3)  # Round to 3 decimal places
+
 @Bot.on_message(filters.command('stats'))
 async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
