@@ -18,8 +18,8 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
 # List of photo URLs
 photos = [
-    "https://litter.catbox.moe/npli8j.jpg",
-    "https://litter.catbox.moe/f8t3au.jpg",
+    "https://litter.catbox.moe/8ngis1.jpg",
+    "https://litter.catbox.moe/21bhag.jpg",
     # Add more photo URLs as needed
 ]
 
@@ -138,10 +138,10 @@ async def not_joined(client: Client, message: Message):
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
-    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if get_force_sub_channel(1) else None
-    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if get_force_sub_channel(2) else None
-    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if get_force_sub_channel(3) else None
-    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if get_force_sub_channel(4) else None
+    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
 
     buttons = [
         [
@@ -167,8 +167,25 @@ async def not_joined(client: Client, message: Message):
 
     await temp_msg.delete()  # Delete the "Please Wait..." message
 
-    
-    
+    # Check if user has joined all force sub channels before sending force sub message
+    if not await check_force_sub(client, message.from_user.id):
+        await message.reply(
+            text=FORCE_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
+            ),
+            reply_markup=InlineKeyboardMarkup(buttons),
+            quote=True,
+            disable_web_page_preview=True
+        )
+        return
+
+    # User has joined all channels, proceed with start command
+    await start_command(client, message)
+
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
 async def get_users(client: Bot, message: Message):
@@ -268,6 +285,8 @@ async def delete_files(messages, client, k):
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
     await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
+    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+
 
 @Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
@@ -292,7 +311,7 @@ async def list_admins(client, message):
 
         await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
     else:
-        await message.reply_text("You are not an authorized user!")
+        await message.reply_text("You are not the authorized user!")
 
 
 @Client.on_message(filters.private & filters.command("fpbroadcast"))
