@@ -15,7 +15,7 @@ user_data = database['users']
 # Existing functions...
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL_1:
+    if not get_force_sub_channel(1):
         return True
     user_id = update.from_user.id
     if user_id in ADMINS + (get_admins()):
@@ -31,7 +31,7 @@ async def is_subscribed(filter, client, update):
         return True
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL_2:
+    if not get_force_sub_channel(2):
         return True
     user_id = update.from_user.id
     if user_id in ADMINS + (get_admins()):
@@ -47,7 +47,7 @@ async def is_subscribed(filter, client, update):
         return True
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL_3:
+    if not get_force_sub_channel(3):
         return True
     user_id = update.from_user.id
     if user_id in ADMINS + (get_admins()):
@@ -63,7 +63,7 @@ async def is_subscribed(filter, client, update):
         return True
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL_4:
+    if not get_force_sub_channel(4):
         return True
     user_id = update.from_user.id
     if user_id in ADMINS + (get_admins()):
@@ -79,34 +79,34 @@ async def is_subscribed(filter, client, update):
         return True                
 
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL_1:
+    if not get_force_sub_channel(1):
         return True
-    if not FORCE_SUB_CHANNEL_2:
+    if not get_force_sub_channel(2):
         return True
-    if not FORCE_SUB_CHANNEL_3:
+    if not get_force_sub_channel(3):
         return True
-    if not FORCE_SUB_CHANNEL_4:
+    if not get_force_sub_channel(4):
         return True    
     user_id = update.from_user.id
     if user_id in ADMINS + (get_admins()):
         return True
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_1, user_id = user_id)
+        member = await client.get_chat_member(chat_id = get_force_sub_channel(1), user_id = user_id)
     except UserNotParticipant:
         return False
 
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_2, user_id = user_id)
+        member = await client.get_chat_member(chat_id = get_force_sub_channel(2), user_id = user_id)
     except UserNotParticipant:
         return False
 
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_3, user_id = user_id)
+        member = await client.get_chat_member(chat_id = get_force_sub_channel(3), user_id = user_id)
     except UserNotParticipant:
         return False
 
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL_4, user_id = user_id)
+        member = await client.get_chat_member(chat_id = get_force_sub_channel(4), user_id = user_id)
     except UserNotParticipant:
         return False
     else:
