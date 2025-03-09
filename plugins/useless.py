@@ -38,7 +38,7 @@ async def stats(bot: Bot, message: Message):
         await message.reply_photo(
             photo=random_image, 
             caption=status_message,
-            message_effect_id=5046509860389126442  # ✅ Correctly placed
+            message_effect_id=5104841245755180586  # ✅ Correctly placed
         )
 
         await sticker.delete()
