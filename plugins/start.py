@@ -20,7 +20,6 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
     await message.react("👍")
-    await app.update_profile(bio="🎮 playing a game")
     id = message.from_user.id
     if not await present_user(id):
         try:
@@ -125,6 +124,7 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
     await message.react("👎")
+    await app.update_profile(bio="🎮 playing a game")
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
 
