@@ -12,12 +12,18 @@ from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
 from database.db_handler import get_admins
 
+# Function to generate progress bars
+def progress_bar(percentage, size=10):
+    filled = round(percentage / 10)  # Scale to fit the bar size
+    bar = "█" * filled + "░" * (size - filled)  # Create bar with filled & empty blocks
+    return f"[{bar}] {percentage:.1f}%"
+
 async def get_ping(bot):
     start = time.time()
     await bot.get_me()
     end = time.time()
     ping = (end - start) * 1000  # Convert to milliseconds
-    return round(ping, 3)  # Round to 3 decimal places
+    return round(ping, 2)  # Round to 2 decimal places
 
 @Bot.on_message(filters.command('stats'))
 async def stats(bot: Bot, message: Message):
@@ -51,7 +57,7 @@ async def stats(bot: Bot, message: Message):
         free_rom = round(disk.free / (1024 ** 3), 2)
         rom_usage = round((used_rom / total_rom) * 100, 2)
 
-        # Status message
+        # Status message with progress bars
         status_message = f"""
 **📊 BOT STATISTICS:**
 **➤ Uptime:** `{uptime}`
@@ -59,14 +65,17 @@ async def stats(bot: Bot, message: Message):
 **➤ Total Users:** `{total_users_count}`
 
 **📌 CPU Usage:** `{cpu_usage}%`
+{progress_bar(cpu_usage)}
 • **CPU Frequency:** `{cpu_freq} MHz`
 
 **📌 RAM Usage:** `{ram_usage}%`
+{progress_bar(ram_usage)}
 • **Total RAM:** `{total_ram} GB`
 • **Free RAM:** `{free_ram} GB`
 • **Used RAM:** `{used_ram} GB`
 
 **📌 ROM Usage:** `{rom_usage}%`
+{progress_bar(rom_usage)}
 • **Total ROM:** `{total_rom} GB`
 • **Free ROM:** `{free_rom} GB`
 • **Used ROM:** `{used_rom} GB`
