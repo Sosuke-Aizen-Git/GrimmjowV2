@@ -21,7 +21,8 @@ async def get_ping(bot):
 
 @Bot.on_message(filters.command('stats'))
 if message.chat.type == "private":
-    async def stats(bot: Bot, message: Message):
+async def stats(bot: Bot, message: Message):
+    if message.chat.type == "private":
         if message.from_user.id in get_admins() + SUDO_USERS:
             sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
 
@@ -46,8 +47,8 @@ if message.chat.type == "private":
         else:
             await message.reply_text("You are not an authorized user!")
 
-else:
-    async def stats(bot: Bot, message: Message):
+    else:
+        
         if message.from_user.id in get_admins() + SUDO_USERS:
             sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
 
