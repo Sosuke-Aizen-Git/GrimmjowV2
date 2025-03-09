@@ -1,3 +1,6 @@
+import random
+from plugins.start import photos
+import time
 from bot import Bot
 from pyrogram.types import Message
 from pyrogram import filters
@@ -6,7 +9,8 @@ from helper_func import get_readable_time
 from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
 from database.db_handler import get_admins
-import time
+
+# List of images (local file paths or URLs)
 
 async def get_ping(bot):
     start = time.time()
@@ -20,22 +24,18 @@ async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         now = datetime.now()
         delta = now - bot.uptime
-        time = get_readable_time(delta.seconds)
+        uptime = get_readable_time(delta.seconds)
         ping = await get_ping(bot)
         total_users_count = len(await full_userbase())
 
-        status_message = (
-            "<u><b>Bot Status</b></u>\n"
-            f"<blockquote>⏳ Bot Uptime: {time}</blockquote>\n"
-            f"<blockquote>⚡️ Current Ping: {ping} ms</blockquote>\n"
-            f"<blockquote>👤 Total Users: {total_users_count}</blockquote>"
+        status_message = f'<pre language="@RedHoodXbot Bot Status:">⏳ Bot Uptime: {time}\n⚡ Current Ping: {ping} ms\n👤 Total Users: {total_users_count}</pre>'
+
+        # Select a random image from the list using random.choice()
+        random_image = random.choice(photos)
+
+        await message.reply_photo(
+            photo=random_image, 
+            caption=status_message
         )
-        await message.reply(status_message)
     else:
         await message.reply_text("You are not an authorized user!")
-
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
