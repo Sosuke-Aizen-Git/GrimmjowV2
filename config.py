@@ -25,7 +25,7 @@ FORCE_SUB_CHANNEL_4 = get_force_sub_channel(4)
 
 FILE_AUTO_DELETE = get_auto_delete_time() or 600  # default to 600 seconds if not set  # auto delete in seconds
 
-PORT = os.environ.get("PORT", "8082")
+PORT = os.environ.get("PORT", "8080")
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 
 try:
