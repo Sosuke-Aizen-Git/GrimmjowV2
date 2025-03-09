@@ -1,7 +1,7 @@
 from pyrogram import filters, __version__
 from bot import Bot
 import pymongo
-from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME, photos
+from config import OWNER_ID, SUDO_USERS, DB_URL, DB_NAME, PHOTOS
 from database.db_handler import (
     set_force_sub_channel, get_force_sub_channel, set_auto_delete_time, 
     add_admin, remove_admin, get_admins
@@ -32,7 +32,7 @@ async def help_command(client, message):
 
     await client.send_photo(
         chat_id=message.chat.id,
-        photo=random.choice(photos),
+        photo=random.choice(PHOTOS),
         caption="<blockquote>Here are the available commands:</blockquote>",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
