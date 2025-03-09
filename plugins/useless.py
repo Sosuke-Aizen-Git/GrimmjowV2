@@ -1,5 +1,5 @@
 import random
-from plugins.start import PHOTOS
+from config import PHOTOS
 import time
 from bot import Bot
 from pyrogram.types import Message
