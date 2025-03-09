@@ -267,9 +267,30 @@ async def pbroadcast_command(client: Bot, message: Message):
     else:
         await message.reply_text("You are not an authorized user!")
 
+
+@Bot.on_message(filters.private & filters.command('pbroadcast'))
+async def pbroadcast_command(client: Bot, message: Message):
+    if message.from_user.id in get_admins() + SUDO_USERS:
+        if not message.reply_to_message:
+            return await message.reply("Use this command as a reply to any message to broadcast.")
+
+        # Inline buttons for selecting broadcast type
+        buttons = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("📌 Pin Broadcast", callback_data=f"pin_broadcast_{message.from_user.id}"),
+                    InlineKeyboardButton("📤 Normal Broadcast", callback_data=f"normal_broadcast_{message.from_user.id}")
+                ]
+            ]
+        )
+
+        await message.reply("Choose the broadcast type:", reply_markup=buttons)
+    else:
+        await message.reply_text("You are not an authorized user!")
+
 @Bot.on_callback_query(filters.regex(r'^(pin_broadcast|normal_broadcast)_(\d+)$'))
 async def handle_broadcast_choice(client: Bot, callback_query: CallbackQuery):
-    choice, user_id = callback_query.data.split('_')
+    choice, user_id = callback_query.data.split('_', 1)
     user_id = int(user_id)
 
     if callback_query.from_user.id != user_id:
@@ -285,7 +306,7 @@ async def handle_broadcast_choice(client: Bot, callback_query: CallbackQuery):
     unsuccessful = 0
 
     # Add the message before the broadcast process
-    await callback_query.message.reply("Broadcast process is starting...")
+    await callback_query.message.reply("The broadcast process is starting...")
 
     pls_wait = await callback_query.message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
     for chat_id in query:
