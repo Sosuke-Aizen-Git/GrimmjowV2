@@ -55,7 +55,7 @@ USER_REPLY_TEXT = ""
 START_MSG = os.environ.get("START_MESSAGE", "<blockquote>Hello {mention}</blockquote>\n\n<blockquote>I Can Store Private Files In Specified Channel And Other Users Can Access It From Special Link</blockquote>\n<blockquote>Main channel @Animes_Station.</blockquote>")
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {mention}\n\n<b>You Need To Join In My Channel/Group To Use Me\n\nKindly Please Join Channel</b>")
 
-photos = [
+PHOTOS = [
     "https://litter.catbox.moe/f8t3au.jpg",
     "https://litter.catbox.moe/npli8j.jpg",
     # Add more photo URLs as needed
