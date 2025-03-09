@@ -12,6 +12,9 @@ from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
 from database.db_handler import get_admins
 
+# Dictionary to track cooldown for users
+cooldown_tracker = {}
+
 # Function to generate progress bars
 def progress_bar(percentage, size=10):
     filled = round(percentage / 10)  # Scale to fit the bar size
@@ -106,6 +109,20 @@ async def stats(bot: Bot, message: Message):
 
 @Bot.on_callback_query(filters.regex("refresh_stats"))
 async def refresh_stats(bot: Client, query: CallbackQuery):
+    user_id = query.from_user.id
+    current_time = time.time()
+
+    # Check if user is in cooldown
+    if user_id in cooldown_tracker:
+        last_used = cooldown_tracker[user_id]
+        time_diff = current_time - last_used
+        if time_diff < 5:  # 5-second cooldown
+            await query.answer(f"⏳ Please wait {5 - int(time_diff)}s before refreshing again!", show_alert=True)
+            return
+
+    # Update cooldown tracker
+    cooldown_tracker[user_id] = current_time
+
     # Update the statistics
     updated_stats = await get_bot_stats(bot)
 
