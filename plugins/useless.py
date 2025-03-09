@@ -102,12 +102,11 @@ async def stats(bot: Bot, message: Message):
         sent_message = await message.reply_photo(
             photo=random_image,
             caption=status_message,
-            parse_mode="html",
             reply_markup=keyboard
         )
         await sticker.delete()
     else:
-        await message.reply_text("<b>You are not an authorized user!</b>", parse_mode="html")
+        await message.reply_text("<b>You are not an authorized user!</b>")
 
 @Bot.on_callback_query(filters.regex("refresh_stats"))
 async def refresh_stats(bot: Client, query: CallbackQuery):
@@ -137,7 +136,6 @@ async def refresh_stats(bot: Client, query: CallbackQuery):
     # Edit the message with new stats
     await query.message.edit_caption(
         caption=updated_stats,
-        parse_mode="html",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔄 Refresh Stats", callback_data="refresh_stats")],
             [InlineKeyboardButton("❌ Close", callback_data="close_stats")]
