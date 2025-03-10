@@ -44,7 +44,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
 
     if data == "about":
         await query.message.edit_text(
-            text=f"<b>🤖 Bot Name:</b> <a href='https://t.me/Anime_file_share669bot'>Red hood</a>\n"
+            text=f"<b>🤖 Bot Name:</b> <a href='https://t.me/Anime_file_share669bot'>Honoured One</a>\n"
                  f"<b>📝 Language:</b> <a href='https://python.org'>Python 3</a>\n"
                  f"<b>📚 Library:</b> <a href='https://pyrogram.org'>Pyrogram {__version__}</a>",
             disable_web_page_preview=True,
