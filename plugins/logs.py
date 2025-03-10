@@ -12,6 +12,9 @@ async def send_logs(client, message):
                 document="logs.txt",  # Adjust the path if necessary
                 caption="Here are the bot logs."
             )
+            await message.reply_text("Logs sent successfully.")
+        except FileNotFoundError:
+            await message.reply_text("logs.txt file not found. Please check the path.")
         except Exception as e:
             await message.reply_text(f"Failed to send logs: {e}")
     else:
