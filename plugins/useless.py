@@ -7,7 +7,7 @@ from config import PHOTOS
 from bot import Bot
 from pyrogram import filters, Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from helper_func import get_readable_time
+from helper_func import get_readable_time  # Using your existing function
 from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
 from database.db_handler import get_admins
@@ -32,8 +32,8 @@ async def get_bot_stats(bot):
     # Bot Uptime Calculation
     now = datetime.now()
     delta = now - bot.uptime
-    uptime = get_readable_time(delta.seconds)
-    
+    uptime = get_readable_time(int(delta.total_seconds()))  # Using your function
+
     # Get bot ping
     ping = await get_ping(bot)
 
