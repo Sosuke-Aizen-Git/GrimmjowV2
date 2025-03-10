@@ -11,6 +11,7 @@ from database.database import add_user, del_user, full_userbase, present_user
 from plugins.cbb import check_force_sub   # Import the check_force_sub function
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import pymongo
+import asyncio
 import time
 import random  # Import random to select a random photo
 
@@ -20,9 +21,10 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
-    await message.react("👍")
-    Emoji=await message.reply("⏳")
+    Emoji = await message.reply("⏳")
+    await asyncio.sleep(1)  # Waits for 5 seconds before deleting
     await Emoji.delete()
+    
     id = message.from_user.id
     if not await present_user(id):
         try:
