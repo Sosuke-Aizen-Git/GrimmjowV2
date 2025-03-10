@@ -270,35 +270,49 @@ async def send_pinned_broadcast(client, message):
 async def forward_broadcast(client, message):
     await broadcast_message(client, message, pin=False, forward=True)
 
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @Client.on_message(filters.command("fsubs"))
 async def force_subs(client, message):
-    temp_mssg = await message.reply("Ruk ek sec...")
-    if message.from_user.id in get_admins() + SUDO_USERS:
-        channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
+    temp_mssg = await message.reply("<blockquote>Fetching force subscription channels...</blockquote>")
+    
+    if message.from_user.id not in get_admins() + SUDO_USERS:
+        return await temp_mssg.edit("<blockquote>You are not authorized to perform this action.</blockquote>")
 
-        buttons = []
-        for channel in channels:
-            if channel and str(channel).startswith("-100"):  # Ensure it's a valid channel ID
-                try:
-                    chat = await client.get_chat(chat_id=channel)  # Fetch channel details
+    channels = [get_force_sub_channel(i) for i in range(1, 5)]
+    buttons = []
+    cache_invites = {}
+
+    for channel in channels:
+        if channel and str(channel).startswith("-100"):  # Ensure valid channel ID
+            try:
+                if channel in cache_invites:
+                    invite_link = cache_invites[channel]
+                else:
+                    chat = await client.get_chat(chat_id=channel)
                     invite_link = await client.create_chat_invite_link(chat_id=channel)
-                    buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])  # Use channel name
-                except Exception as e:
-                    print(f"Error generating invite link for {channel}: {e}")
+                    cache_invites[channel] = invite_link.invite_link  # Cache the invite link
+                
+                buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])
+            except Exception as e:
+                logger.error(f"Error generating invite link for {channel}: {e}")
 
-        if not buttons:
-            return await message.reply_text("No valid force subscription channels found!")
+    if not buttons:
+        return await temp_mssg.edit("<blockquote>No valid force subscription channels found!</blockquote>")
 
-        # Add close button to the reply markup
-        buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
+    # Add Close button
+    buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
 
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply_text("Here is the list of force subscription channels:", reply_markup=reply_markup)
-        await temp_mssg.delete()
-    else:
-        await message.reply_text("You are not an authorized user!")
-        await temp_mssg.delete()
+    reply_markup = InlineKeyboardMarkup(buttons)
+    await temp_mssg.edit("<blockquote>Here is the list of force subscription channels:</blockquote>", reply_markup=reply_markup)
+
+
 # Function to handle file deletion
 async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
