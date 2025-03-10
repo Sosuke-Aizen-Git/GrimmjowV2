@@ -28,7 +28,7 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 2)  # Round to 2 decimal places
 
-time = get_readable_time(delta.seconds)
+    time = get_readable_time(delta.seconds)
 
     # Get bot ping
     ping = await get_ping(bot)
