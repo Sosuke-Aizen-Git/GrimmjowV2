@@ -4,7 +4,7 @@ import psutil
 import shutil
 from datetime import datetime
 from config import PHOTOS
-from bot import BOT_START_TIME
+from bot import bot, BOT_START_TIME
 from pyrogram import filters, Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from helper_func import get_readable_time  # Using your existing function
