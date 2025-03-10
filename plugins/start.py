@@ -21,6 +21,7 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
+    await message.react("👍")
     Emoji = await message.reply("⏳")
     await asyncio.sleep(1)  # Waits for 5 seconds before deleting
     await Emoji.delete()
