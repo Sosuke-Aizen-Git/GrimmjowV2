@@ -328,9 +328,10 @@ async def delete_files(messages, client, k):
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
+
 import random
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 
 # Setup logging
@@ -375,12 +376,15 @@ async def list_admins(client, message):
     # Pick a random image
     random_image = random.choice(PHOTOS)
 
-    # Send image with caption
-    await temp_mssg.delete()  # Delete the "Fetching admins..." message
-    await message.reply_photo(
-        photo=random_image,
+    # Delete fetching message
+    await temp_mssg.delete()
+
+    # Send the image first
+    sent_message = await message.chat.send_photo(photo=random_image)
+
+    # Then edit it with the caption
+    await sent_message.edit_caption(
         caption=admin_text,
-        disable_web_page_preview=True,
         reply_markup=reply_markup
     )
 
