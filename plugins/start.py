@@ -24,6 +24,7 @@ async def start_command(client: Client, message: Message):
     Emoji = await message.reply("⏳")
     await asyncio.sleep(1)  # Waits for 5 seconds before deleting
     await Emoji.delete()
+    await message.react("👍")
     
     id = message.from_user.id
     if not await present_user(id):
