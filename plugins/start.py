@@ -341,6 +341,8 @@ async def list_admins(client, message):
     if message.from_user.id not in get_admins() + SUDO_USERS:
         return await message.reply_text("<blockquote>You are not authorized to perform this action.</blockquote>")
 
+    temp_mssg = await message.reply_text("🔍 Fetching admins...")
+
     unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
     admins_list = []
 
@@ -354,14 +356,14 @@ async def list_admins(client, message):
         admins_list.append(f"<b>{index}.</b> {admin_name} : <pre>{admin_id}</pre>")
 
     if not admins_list:
-        return await message.reply_text("<blockquote>No admins found!</blockquote>")
+        return await temp_mssg.edit_text("<blockquote>No admins found!</blockquote>")
 
     admin_text = "<b>👮‍♂️ Here is the list of bot admins:</b>\n\n" + "\n".join(admins_list)
 
     # Close button
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
 
-    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+    await temp_mssg.edit_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
 @Bot.on_message(filters.command('id') & filters.private)
