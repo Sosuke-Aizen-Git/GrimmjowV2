@@ -64,6 +64,65 @@ async def delete_files(messages, client, warning_msg):
     await asyncio.gather(*[client.delete_messages(msg.chat.id, [msg.id]) for msg in messages if msg])
     await warning_msg.edit_text("Your Video / File Is Successfully Deleted ✅")
 
+@Bot.on_message(filters.command('start'))
+@Bot.on_message(filters.command('start'))
+async def not_joined(client: Client, message: Message):
+    await message.react("👎")
+    # Send "Please Wait..." message
+    temp_msg = await message.reply("Please Wait...")
+
+    # Refresh the invite links and force sub channels
+    await refresh_force_sub_channels()
+
+    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
+    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
+    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
+    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
+
+    buttons = [
+        [
+            InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
+            InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2),
+        ],
+        [
+            InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3),
+            InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4),
+        ]
+    ]
+    try:
+        buttons.append(
+            [
+                InlineKeyboardButton(
+                    text='Try Again',
+                    url=f"https://t.me/{client.username}?start={message.command[1]}"
+                )
+            ]
+        )
+    except IndexError:
+        pass
+
+    await temp_msg.delete()  # Delete the "Please Wait..." message
+
+    # Check if user has joined all force sub channels before sending force sub message
+    if not await check_force_sub(client, message.from_user.id):
+        random_photo = random.choice(PHOTOS)
+        await client.send_photo(
+            chat_id=message.chat.id,
+            photo=random_photo,
+            caption=FORCE_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
+            ), reply_markup=InlineKeyboardMarkup(buttons),
+        )
+        return
+
+    # User has joined all channels, proceed with start command
+    await start_command(client, message)
+  
+
 @Bot.on_message(filters.command("admins"))
 async def list_admins(client, message):
     if message.from_user.id not in get_admins() + SUDO_USERS:
