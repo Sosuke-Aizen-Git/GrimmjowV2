@@ -21,6 +21,7 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
     await message.react("👍")
+    Emoji=await message.reply("⏳")
     id = message.from_user.id
     if not await present_user(id):
         try:
@@ -57,6 +58,7 @@ async def start_command(client: Client, message: Message):
             except:
                 return
         temp_msg = await message.reply("Please Wait...")
+        await Emoji.delete()
         try:
             messages = await get_messages(client, ids)
         except:
