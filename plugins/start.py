@@ -328,31 +328,40 @@ async def delete_files(messages, client, k):
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 @Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
-    if message.from_user.id in get_admins() + SUDO_USERS:
+    if message.from_user.id not in get_admins() + SUDO_USERS:
+        return await message.reply_text("<blockquote>You are not authorized to perform this action.</blockquote>")
 
-        unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
-        admins_list = []
+    unique_admins = list(set(SUDO_USERS + get_admins()))  # Remove duplicate IDs
+    admins_list = []
 
-        for index, admin_id in enumerate(unique_admins, start=1):
-            try:
-                user = await client.get_users(admin_id)  # Fetch user details
-                admin_name = f"[{user.first_name}]( tg://openmessage?user_id={admin_id} )"
-            except Exception:
-                admin_name = f"`{admin_id}` (Bot not started)"  # If user data not found
+    for index, admin_id in enumerate(unique_admins, start=1):
+        try:
+            user = await client.get_users(admin_id)  # Fetch user details
+            admin_name = f"<a href='tg://openmessage?user_id={admin_id}'>{user.first_name}</a>"
+        except Exception:
+            admin_name = "<b>Bot not started</b>"
 
-            admins_list.append(f"{index}. {admin_name} (`<code>{admin_id}</code>`)")
-    
-        admin_text = "👮‍♂️ Here is the list of bot admins:\n\n" + "\n".join(admins_list)
+        admins_list.append(f"<b>{index}.</b> {admin_name} : <pre>{admin_id}</pre>")
 
-        # Add close button to the reply markup
-        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
+    if not admins_list:
+        return await message.reply_text("<blockquote>No admins found!</blockquote>")
 
-        await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
-    else:
-        await message.reply_text("You are not the authorized user!")
+    admin_text = "<b>👮‍♂️ Here is the list of bot admins:</b>\n\n" + "\n".join(admins_list)
 
+    # Close button
+    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
+
+    await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
 @Bot.on_message(filters.command('id') & filters.private)
