@@ -49,7 +49,7 @@ class Bot(Client):
         global saving_message  # Ensure saving_message is accessible
         await super().start()
         usr_bot_me = await self.get_me()
-        self.uptime = datetime.now()
+        
 
         if FORCE_SUB_CHANNEL_1:
             try:
