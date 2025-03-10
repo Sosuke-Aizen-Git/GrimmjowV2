@@ -4,10 +4,10 @@ import psutil
 import shutil
 from datetime import datetime
 from config import PHOTOS
-from bot import Bot, BOT_START_TIME
+from bot import Bot
 from pyrogram import filters, Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from helper_func import get_readable_time  # Using your existing function
+from helper_func import get_readable_time
 from config import ADMINS, SUDO_USERS
 from database.database import full_userbase
 from database.db_handler import get_admins
@@ -28,15 +28,11 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 2)  # Round to 2 decimal places
 
-from bot import BOT_START_TIME  # Import global start time
-
 async def get_bot_stats(bot):
-    # Corrected Uptime Calculation
+    # Bot Uptime Calculation
     now = datetime.now()
-    delta = now - BOT_START_TIME  # Use global start time
-    uptime = get_readable_time(int(delta.total_seconds()))  # Convert to int
-
-    # Keep the rest of the function unchanged...
+    delta = now - bot.uptime
+    uptime = get_readable_time(delta.seconds)
     
     # Get bot ping
     ping = await get_ping(bot)
