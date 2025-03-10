@@ -288,8 +288,9 @@ async def force_subs(client, message):
     channels = [get_force_sub_channel(i) for i in range(1, 5)]
     buttons = []
     cache_invites = {}
+    channel_info = ""
 
-    for channel in channels:
+    for idx, channel in enumerate(channels, start=1):
         if channel and str(channel).startswith("-100"):  # Ensure valid channel ID
             try:
                 if channel in cache_invites:
@@ -300,6 +301,7 @@ async def force_subs(client, message):
                     cache_invites[channel] = invite_link.invite_link  # Cache the invite link
                 
                 buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])
+                channel_info += f"<blockquote>Force Sub Channel {idx}:</blockquote>\n<pre>{channel}</pre>\n\n"
             except Exception as e:
                 logger.error(f"Error generating invite link for {channel}: {e}")
 
@@ -310,8 +312,7 @@ async def force_subs(client, message):
     buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
 
     reply_markup = InlineKeyboardMarkup(buttons)
-    await temp_mssg.edit("<blockquote>Here is the list of force subscription channels:</blockquote>", reply_markup=reply_markup)
-
+    await temp_mssg.edit(f"<blockquote>Here is the list of force subscription channels:</blockquote>\n\n{channel_info}", reply_markup=reply_markup)
 
 # Function to handle file deletion
 async def delete_files(messages, client, k):
