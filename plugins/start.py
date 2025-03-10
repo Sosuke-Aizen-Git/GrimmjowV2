@@ -58,7 +58,6 @@ async def start_command(client: Client, message: Message):
             except:
                 return
         temp_msg = await message.reply("Please Wait...")
-    await Emoji.delete()
         try:
             messages = await get_messages(client, ids)
         except:
@@ -122,6 +121,7 @@ async def start_command(client: Client, message: Message):
             ), reply_markup=reply_markup
         )
         return
+    await Emoji.delete()
 
 @Bot.on_message(filters.command('start'))
 @Bot.on_message(filters.command('start'))
