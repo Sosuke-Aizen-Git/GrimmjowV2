@@ -301,7 +301,7 @@ async def force_subs(client, message):
                     cache_invites[channel] = invite_link.invite_link  # Cache the invite link
                 
                 buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])
-                channel_info += f"<blockquote>Force Sub Channel {idx}:</blockquote>\n<pre>{channel}</pre>\n\n"
+                channel_info += f"<blockquote>Force Sub Channel {idx}:</blockquote>\n<pre>{channel}</pre>\n"
             except Exception as e:
                 logger.error(f"Error generating invite link for {channel}: {e}")
 
