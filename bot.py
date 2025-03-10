@@ -13,10 +13,6 @@ from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
 import os
-from datetime import datetime
-
-# Store bot start time
-BOT_START_TIME = datetime.now()
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
@@ -49,7 +45,7 @@ class Bot(Client):
         global saving_message  # Ensure saving_message is accessible
         await super().start()
         usr_bot_me = await self.get_me()
-        
+        self.uptime = datetime.now()
 
         if FORCE_SUB_CHANNEL_1:
             try:
