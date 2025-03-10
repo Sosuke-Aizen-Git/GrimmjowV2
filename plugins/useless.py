@@ -28,12 +28,16 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 2)  # Round to 2 decimal places
 
-async def get_bot_stats(bot):
-    # Bot Uptime Calculation
-    now = datetime.now()
-    delta = now - bot.uptime
-    uptime = get_readable_time(int(delta.total_seconds()))  # Using your function
+from bot import BOT_START_TIME  # Import global start time
 
+async def get_bot_stats(bot):
+    # Corrected Uptime Calculation
+    now = datetime.now()
+    delta = now - BOT_START_TIME  # Use global start time
+    uptime = get_readable_time(int(delta.total_seconds()))  # Convert to int
+
+    # Keep the rest of the function unchanged...
+    
     # Get bot ping
     ping = await get_ping(bot)
 
