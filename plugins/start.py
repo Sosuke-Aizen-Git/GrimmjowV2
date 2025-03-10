@@ -328,13 +328,22 @@ async def delete_files(messages, client, k):
     await message.reply_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
+import random
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# List of random image URLs
+RANDOM_IMAGES = [
+    "https://telegra.ph/file/1a2b3c4d5e.jpg",
+    "https://telegra.ph/file/6f7g8h9i0j.jpg",
+    "https://telegra.ph/file/abc123def456.jpg",
+    # Add more image URLs here
+]
 
 @Client.on_message(filters.command("admins"))
 async def list_admins(client, message):
@@ -363,7 +372,17 @@ async def list_admins(client, message):
     # Close button
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Close", callback_data="close")]])
 
-    await temp_mssg.edit_text(admin_text, disable_web_page_preview=True, reply_markup=reply_markup)
+    # Pick a random image
+    random_image = random.choice(PHOTOS)
+
+    # Send image with caption
+    await temp_mssg.delete()  # Delete the "Fetching admins..." message
+    await message.reply_photo(
+        photo=random_image,
+        caption=admin_text,
+        disable_web_page_preview=True,
+        reply_markup=reply_markup
+    )
 
 
 @Bot.on_message(filters.command('id') & filters.private)
