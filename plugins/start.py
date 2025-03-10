@@ -87,6 +87,35 @@ async def get_id(client, message):
     user = message.reply_to_message.from_user if message.reply_to_message else await client.get_users(message.command[1]) if len(message.command) > 1 else message.from_user
     await message.reply(f"User {user.first_name}'s ID: `{user.id}`")
 
+@Client.on_message(filters.command("fsubs"))
+async def force_subs(client, message):
+    temp_msg = await message.reply("Fetching force subscription channels...")
+
+    if message.from_user.id not in get_admins() + SUDO_USERS:
+        await temp_msg.delete()
+        return await message.reply("You are not an authorized user!")
+
+    force_sub_channels = [get_force_sub_channel(i) for i in range(1, 5)]
+    force_sub_channels = [ch for ch in force_sub_channels if ch and str(ch).startswith("-100")]
+
+    if not force_sub_channels:
+        await temp_msg.delete()
+        return await message.reply("No valid force subscription channels found!")
+
+    buttons = []
+    for channel in force_sub_channels:
+        try:
+            chat = await client.get_chat(channel)
+            invite_link = await client.create_chat_invite_link(channel)
+            buttons.append([InlineKeyboardButton(chat.title, url=invite_link.invite_link)])
+        except Exception as e:
+            print(f"Error generating invite link for {channel}: {e}")
+
+    buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close")])
+
+    await temp_msg.delete()
+    await message.reply("Here are the force subscription channels:", reply_markup=InlineKeyboardMarkup(buttons))
+
 @Bot.on_message(filters.command('autodel'))
 async def autodel_command(client, message):
     await message.reply(f"Auto-delete timer: {get_auto_delete_time()} seconds.")
