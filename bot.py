@@ -13,6 +13,10 @@ from plugins import logs
 from flask import Flask, jsonify
 from threading import Thread
 import os
+from datetime import datetime
+
+# Store bot start time
+BOT_START_TIME = datetime.now()
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
