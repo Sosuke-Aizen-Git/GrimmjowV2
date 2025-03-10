@@ -11,6 +11,7 @@ from database.database import add_user, del_user, full_userbase, present_user
 from plugins.cbb import check_force_sub   # Import the check_force_sub function
 from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
 import pymongo
+import time
 import random  # Import random to select a random photo
 
 
@@ -189,7 +190,6 @@ async def get_users(client: Bot, message: Message):
         await message.reply_text("You are not an authorized user!")
 
 
-
 async def broadcast_message(client, message, pin=False, forward=False):
     if message.from_user.id not in get_admins() + SUDO_USERS:
         return await message.reply_text("🚫 You are not an authorized user!")
@@ -202,6 +202,8 @@ async def broadcast_message(client, message, pin=False, forward=False):
     total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
 
     pls_wait = await message.reply("<i>Broadcasting message... Please wait.</i>")
+
+    start_time = time.time()  # Start time
 
     for chat_id in query:
         try:
@@ -234,16 +236,20 @@ async def broadcast_message(client, message, pin=False, forward=False):
             unsuccessful += 1
             continue
 
+    end_time = time.time()  # End time
+    total_time = round(end_time - start_time, 2)  # Calculate total time taken
+
     status = f"""<b><u>✅ Broadcast Completed</u></b>
 
 <b>Total Users:</b> <code>{total}</code>
 <b>Successful:</b> <code>{successful}</code>
 <b>Blocked Users:</b> <code>{blocked}</code>
 <b>Deleted Accounts:</b> <code>{deleted}</code>
-<b>Unsuccessful:</b> <code>{unsuccessful}</code>"""
+<b>Unsuccessful:</b> <code>{unsuccessful}</code>
+<b>Total Time Taken:</b> <code>{total_time} seconds</code>"""
 
     await pls_wait.edit(status)
-
+    
 # Normal broadcast
 @Bot.on_message(filters.private & filters.command('broadcast'))
 async def send_text(client, message):
