@@ -22,6 +22,7 @@ file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
 async def start_command(client: Client, message: Message):
     await message.react("👍")
     Emoji=await message.reply("⏳")
+    await Emoji.delete()
     id = message.from_user.id
     if not await present_user(id):
         try:
@@ -120,7 +121,6 @@ async def start_command(client: Client, message: Message):
                 id=message.from_user.id
             ), reply_markup=reply_markup
         )
-    await Emoji.delete()
         return
     
 
