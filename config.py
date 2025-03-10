@@ -56,8 +56,8 @@ START_MSG = os.environ.get("START_MESSAGE", "<blockquote>Hello {mention}</blockq
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {mention}\n\n<b>You Need To Join In My Channel/Group To Use Me\n\nKindly Please Join Channel</b>")
 
 PHOTOS = [
-    "https://litter.catbox.moe/f8t3au.jpg",
-    "https://litter.catbox.moe/npli8j.jpg",
+    "https://litter.catbox.moe/dhsso4.jpg",
+    "https://litter.catbox.moe/b36vya.jpg",
     # Add more photo URLs as needed
 ]
 
