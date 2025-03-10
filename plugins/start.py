@@ -120,8 +120,9 @@ async def start_command(client: Client, message: Message):
                 id=message.from_user.id
             ), reply_markup=reply_markup
         )
-        return
     await Emoji.delete()
+        return
+    
 
 @Bot.on_message(filters.command('start'))
 @Bot.on_message(filters.command('start'))
