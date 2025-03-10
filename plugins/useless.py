@@ -28,12 +28,8 @@ async def get_ping(bot):
     ping = (end - start) * 1000  # Convert to milliseconds
     return round(ping, 2)  # Round to 2 decimal places
 
-async def get_bot_stats(bot):
-    # Bot Uptime Calculation
-    now = datetime.now()
-    delta = now - bot.uptime
-    uptime = get_readable_time(delta.seconds)
-    
+time = get_readable_time(delta.seconds)
+
     # Get bot ping
     ping = await get_ping(bot)
 
@@ -59,7 +55,7 @@ async def get_bot_stats(bot):
     # Status message with progress bars
     status_message = f"""
 <blockquote>📊 <b>BOT STATISTICS</b></blockquote>
-<b>➤ Uptime:</b> <code>{uptime}</code>
+<b>➤ Uptime:</b> <code>{time}</code>
 <b>➤ Ping:</b> <code>{ping} ms</code>
 <b>➤ Total Users:</b> <code>{total_users_count}</code>
 
