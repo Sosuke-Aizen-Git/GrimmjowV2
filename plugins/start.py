@@ -146,27 +146,37 @@ async def not_joined(client: Client, message: Message):
         [
             InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
             InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2),
-        ],
-        [
-            InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3),
-            InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4),
-        ]
-    ]
+from pyrogram.errors import ChatAdminRequired
+
+async def not_joined(client: Client, message: Message):
+    await message.react("👎")
+    temp_msg = await message.reply("Please Wait...")
+
+    await refresh_force_sub_channels()
+
     try:
-        buttons.append(
-            [
-                InlineKeyboardButton(
-                    text='Try Again',
-                    url=f"https://t.me/{client.username}?start={message.command[1]}"
-                )
-            ]
-        )
+        client.invitelink = (await client.create_chat_invite_link(chat_id=get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
+        client.invitelink2 = (await client.create_chat_invite_link(chat_id=get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
+        client.invitelink3 = (await client.create_chat_invite_link(chat_id=get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
+        client.invitelink4 = (await client.create_chat_invite_link(chat_id=get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
+    except ChatAdminRequired as e:
+        await temp_msg.edit(f"Error: {e}")
+        return
+
+    buttons = [
+        [InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
+         InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2)],
+        [InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3),
+         InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4)]
+    ]
+
+    try:
+        buttons.append([InlineKeyboardButton(text='Try Again', url=f"https://t.me/{client.username}?start={message.command[1]}")])
     except IndexError:
         pass
 
-    await temp_msg.delete()  # Delete the "Please Wait..." message
+    await temp_msg.delete()
 
-    # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
         random_photo = random.choice(PHOTOS)
         await client.send_photo(
@@ -182,8 +192,8 @@ async def not_joined(client: Client, message: Message):
         )
         return
 
-    # User has joined all channels, proceed with start command
     await start_command(client, message)
+
 
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
