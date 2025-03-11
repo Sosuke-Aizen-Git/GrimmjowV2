@@ -70,21 +70,14 @@ async def cb_handler(client: Bot, query: CallbackQuery):
         await query.message.edit_text(f"Operation cancelled by {query.from_user.mention}")
 
     elif data.startswith("confirm_save_fsub_"):
-        if query.from_user.id in SUDO_USERS:
-            try:
-                await refresh_database()
-                await refresh_force_sub_channels()
-                channel_index = int(data.split("_")[-2])
-                new_channel_id = int(data.split("_")[-1])
-                logging.info(f"Setting Force Sub Channel {channel_index} to {new_channel_id}")
-                set_force_sub_channel(channel_index, new_channel_id)
-                logging.info(f"Force Sub Channel {channel_index} updated successfully")
-                await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
-            except Exception as e:
-                logging.error(f"Error updating Force Sub Channel: {e}")
-                await query.message.edit_text(f"Error updating Force Sub Channel: {e}")
+        if query.from_user.id in SUDO_USERS:  # FIXED
+            await refresh_database()
+            await refresh_force_sub_channels()
+            channel_index = int(data.split("_")[-2])
+            new_channel_id = int(data.split("_")[-1])
+            set_force_sub_channel(channel_index, new_channel_id)
+            await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
 
-    
     elif data.startswith("confirm_save_admin_"):
         if query.from_user.id in SUDO_USERS:  # FIXED
             await refresh_database()
@@ -181,17 +174,11 @@ async def cb_handler(client: Bot, query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
-import logging
-
-logging.basicConfig(level=logging.INFO)
-
 @Bot.on_message(filters.command("add_fsub") & filters.user([OWNER_ID] + SUDO_USERS))
 async def add_fsub(client, message):
     try:
         _, index, new_channel_id = message.text.split()
         index, new_channel_id = int(index), int(new_channel_id)
-        
-        logging.info(f"Attempting to update Force Sub Channel {index} to {new_channel_id}")
 
         await message.reply(
             f"Are you sure you want to update Force Sub Channel {index} to {new_channel_id}?",
@@ -201,47 +188,7 @@ async def add_fsub(client, message):
             ])
         )
     except Exception as e:
-        logging.error(f"Error in add_fsub command: {e}")
         await message.reply(f"Error: {e}")
-
-@Bot.on_callback_query()
-async def cb_handler(client: Bot, query: CallbackQuery):
-    data = query.data
-
-    if data.startswith("confirm_save_fsub_"):
-        if query.from_user.id in SUDO_USERS:
-            try:
-                await refresh_database()
-                await refresh_force_sub_channels()
-                channel_index = int(data.split("_")[-2])
-                new_channel_id = int(data.split("_")[-1])
-                logging.info(f"Setting Force Sub Channel {channel_index} to {new_channel_id}")
-                set_force_sub_channel(channel_index, new_channel_id)
-                logging.info(f"Force Sub Channel {channel_index} updated successfully")
-                await query.message.edit_text(f"Force Sub Channel {channel_index} updated to {new_channel_id}. Database refreshed. Saved by {query.from_user.mention}")
-            except Exception as e:
-                logging.error(f"Error updating Force Sub Channel: {e}")
-                await query.message.edit_text(f"Error updating Force Sub Channel: {e}")
-
-@Bot.on_message(filters.command("add_fsub") & filters.user([OWNER_ID] + SUDO_USERS))
-async def add_fsub(client, message):
-    try:
-        _, index, new_channel_id = message.text.split()
-        index, new_channel_id = int(index), int(new_channel_id)
-        
-        logging.info(f"Attempting to update Force Sub Channel {index} to {new_channel_id}")
-
-        await message.reply(
-            f"Are you sure you want to update Force Sub Channel {index} to {new_channel_id}?",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("✅ Confirm", callback_data=f"confirm_save_fsub_{index}_{new_channel_id}")],
-                [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
-            ])
-        )
-    except Exception as e:
-        logging.error(f"Error in add_fsub command: {e}")
-        await message.reply(f"Error: {e}")
-
 
 @Bot.on_message(filters.command("setautodel") & filters.user([OWNER_ID] + SUDO_USERS))
 async def set_auto_delete_time_command(client, message):
