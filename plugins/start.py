@@ -130,6 +130,9 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start'))
 @Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
+    Emoji2 = await message.reply("⏳")
+    await asyncio.sleep(1)  # Waits for 1 seconds or whatever you want it will wait before deleting
+    await Emoji2.delete()
     await message.react("👎")
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
