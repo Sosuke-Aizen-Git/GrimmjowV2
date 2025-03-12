@@ -132,8 +132,7 @@ async def not_joined(client: Client, message: Message):
     await message.react("👎")
 
     # Send initial message before checking not_join
-    await message.reply("Welcome! Please wait while we check your subscription status.")
-
+    
     # Send animated "Checking..." message
     animation_message = await message.reply("🔄 Checking...")
     for _ in range(3):
@@ -165,6 +164,7 @@ async def not_joined(client: Client, message: Message):
         pass
 
     await temp_msg.delete()  # Delete the "Please Wait..." message
+    await animation_message.delete()
 
     # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
@@ -183,7 +183,7 @@ async def not_joined(client: Client, message: Message):
         return
 
     # Delete the animation message
-    await animation_message.delete()
+    
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
