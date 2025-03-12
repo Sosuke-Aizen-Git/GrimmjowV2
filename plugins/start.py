@@ -128,11 +128,7 @@ async def start_command(client: Client, message: Message):
     
 
 @Bot.on_message(filters.command('start'))
-@Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
-    Emoji2 = await message.reply("⏳")
-    await asyncio.sleep(1)  # Waits for 1 seconds or whatever you want it will wait before deleting
-    await Emoji2.delete()
     await message.react("👎")
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
@@ -140,21 +136,12 @@ async def not_joined(client: Client, message: Message):
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
-    client.invitelink = (await client.get_chat(get_force_sub_channel(1))).invite_link if FORCE_SUB_CHANNEL_1 else None
-    client.invitelink2 = (await client.get_chat(get_force_sub_channel(2))).invite_link if FORCE_SUB_CHANNEL_2 else None
-    client.invitelink3 = (await client.get_chat(get_force_sub_channel(3))).invite_link if FORCE_SUB_CHANNEL_3 else None
-    client.invitelink4 = (await client.get_chat(get_force_sub_channel(4))).invite_link if FORCE_SUB_CHANNEL_4 else None
+    buttons = []
+    for i in range(1, 5):
+        invitelink = (await client.get_chat(get_force_sub_channel(i))).invite_link if get_force_sub_channel(i) else None
+        if invitelink:
+            buttons.append([InlineKeyboardButton(text=f"Join Channel {i}", url=invitelink)])
 
-    buttons = [
-        [
-            InlineKeyboardButton(text="Join Channel 1", url=client.invitelink),
-            InlineKeyboardButton(text="Join Channel 2", url=client.invitelink2),
-        ],
-        [
-            InlineKeyboardButton(text="Join Channel 3", url=client.invitelink3),
-            InlineKeyboardButton(text="Join Channel 4", url=client.invitelink4),
-        ]
-    ]
     try:
         buttons.append(
             [
@@ -187,6 +174,8 @@ async def not_joined(client: Client, message: Message):
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
+
+
 
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
