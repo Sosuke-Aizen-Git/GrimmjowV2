@@ -130,6 +130,16 @@ async def start_command(client: Client, message: Message):
 @Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
     await message.react("👎")
+
+    # Send initial message before checking not_join
+    await message.reply("Welcome! Please wait while we check your subscription status.")
+
+    # Send animated "Checking..." message
+    animation_message = await message.reply("🔄 Checking...")
+    for _ in range(3):
+        await asyncio.sleep(1)
+        await animation_message.edit(f"🔄 Checking{'.' * (_ % 3 + 1)}")
+
     # Send "Please Wait..." message
     temp_msg = await message.reply("Please Wait...")
 
@@ -172,9 +182,11 @@ async def not_joined(client: Client, message: Message):
         )
         return
 
+    # Delete the animation message
+    await animation_message.delete()
+
     # User has joined all channels, proceed with start command
     await start_command(client, message)
-
 
 
 @Bot.on_message(filters.command('users') & filters.private)
