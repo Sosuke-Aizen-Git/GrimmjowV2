@@ -17,10 +17,10 @@ user_data = database["users"]
 # Optimized force subscription check
 async def is_subscribed(_, client, update):
     user_id = update.from_user.id
-    if user_id in ADMINS + get_admins():
+    if user_id in SUDO_USERS + get_admins():
         return True
 
-    channels = [FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4]
+    channels = [get_force_sub_channel(1), get_force_sub_channel(2), get_force_sub_channel(3), get_force_sub_channel(4)]
     active_channels = [ch for i, ch in enumerate(channels, start=1) if get_force_sub_channel(i)]
 
     for channel in active_channels:
