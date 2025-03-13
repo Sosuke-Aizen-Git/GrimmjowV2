@@ -52,23 +52,3 @@ def get_admins():
     if doc:
         return doc.get("admin_ids", [])
     return []
-
-from pymongo import MongoClient
-
-# MongoDB setup
-MONGO_URI = "mongodb+srv://itsintrovert07:sanemibot@cluster0.zd1nrbm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"  # Replace with your MongoDB URI
-mongo_client = MongoClient(MONGO_URI)
-db = mongo_client["telegram_bot"]
-channel_collection = db["search_channels"]
-
-def get_search_channels():
-    """Fetch searchable channels from MongoDB."""
-    return {doc["chat_id"]: doc["username"] for doc in channel_collection.find()}
-
-def add_search_channel(chat_id, username):
-    """Add or update a channel in MongoDB."""
-    channel_collection.update_one({"chat_id": chat_id}, {"$set": {"username": username}}, upsert=True)
-
-def clear_search_channels():
-    """Clear all stored search channels in MongoDB."""
-    channel_collection.delete_many({})
