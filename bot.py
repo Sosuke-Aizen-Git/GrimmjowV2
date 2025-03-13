@@ -1,44 +1,25 @@
-import asyncio
 from aiohttp import web
 from plugins import web_server
 from pyrogram import Client
 from pyrogram.enums import ParseMode
 import sys
 from datetime import datetime
-from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT
+from config import API_HASH, API_ID, LOGGER, BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, CHANNEL_ID, PORT, ADMINS, SUDO_USERS, OWNER_ID
+import pyrogram.utils
 from utils import update_saved_button_state
-from pymongo import MongoClient
+import asyncio
+from asyncio import sleep
+from plugins import logs
+from flask import Flask, jsonify
 from threading import Thread
 import os
 
-#######################
-# CONFIGURATION
-#######################
-USERBOT_STRING = "your_userbot_string"  # Your Userbot string session
-MONGO_URI = "mongodb://localhost:27017"  # MongoDB connection URI
-DB_NAME = "YourDB"
-COLLECTION_NAME = "channels"
+pyrogram.utils.MIN_CHANNEL_ID = -1009999999999
 
-#######################
-# MONGODB SETUP
-#######################
-mongo_client = MongoClient(MONGO_URI)
-db = mongo_client[DB_NAME]
-channels_collection = db[COLLECTION_NAME]
+# Define saving_message as a global variable
+saving_message = None
 
-def save_channels(channels):
-    """Save or update the channels list in MongoDB."""
-    channels_collection.update_one({"_id": "channels"}, {"$set": {"list": channels}}, upsert=True)
-
-def get_channels():
-    """Retrieve the saved channels from MongoDB."""
-    doc = channels_collection.find_one({"_id": "channels"})
-    return doc.get("list", []) if doc else []
-
-#######################
-# FLASK APP (FOR UPTIME MONITORING)
-#######################
-from flask import Flask, jsonify
+# Create Flask app
 flask_app = Flask(__name__)
 
 @flask_app.route('/uptime', methods=['GET'])
@@ -48,82 +29,131 @@ def uptime():
 def run_flask():
     flask_app.run(host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", 5000)))
 
-#######################
-# BOT & USERBOT
-#######################
 class Bot(Client):
     def __init__(self):
         super().__init__(
             name="Bot",
-            api_id=API_ID,
             api_hash=API_HASH,
+            api_id=API_ID,
             plugins={"root": "plugins"},
             workers=TG_BOT_WORKERS,
             bot_token=BOT_TOKEN
         )
         self.LOGGER = LOGGER
-        self.userbot = Client("userbot", api_id=API_ID, api_hash=API_HASH, session_string=USERBOT_STRING)
 
     async def start(self):
+        global saving_message  # Ensure saving_message is accessible
         await super().start()
-        await self.userbot.start()  # Start userbot here!
-        
         usr_bot_me = await self.get_me()
         self.uptime = datetime.now()
 
-        # Setup force subscription channels
-        for i, channel in enumerate([FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4], start=1):
-            if channel:
-                try:
-                    link = (await self.get_chat(channel)).invite_link
-                    if not link:
-                        await self.export_chat_invite_link(channel)
-                        link = (await self.get_chat(channel)).invite_link
-                    setattr(self, f"invitelink{i}", link)
-                except Exception as e:
-                    self.LOGGER(__name__).warning(f"Bot Can't Export Invite link From Force Sub Channel {i}: {e}")
-                    sys.exit()
+        if FORCE_SUB_CHANNEL_1:
+            try:
+                link = (await self.get_chat(FORCE_SUB_CHANNEL_1)).invite_link
+                if not link:
+                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL_1)
+                    link = (await self.get_chat(FORCE_SUB_CHANNEL_1)).invite_link
+                self.invitelink = link
+            except Exception as a:
+                self.LOGGER(__name__).warning(a)
+                self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 1!")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_1 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_1}")
+                self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
+                sys.exit()
 
-        # Check if bot is admin in the database channel
+        if FORCE_SUB_CHANNEL_2:
+            try:
+                link = (await self.get_chat(FORCE_SUB_CHANNEL_2)).invite_link
+                if not link:
+                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL_2)
+                    link = (await self.get_chat(FORCE_SUB_CHANNEL_2)).invite_link
+                self.invitelink2 = link
+            except Exception as a:
+                self.LOGGER(__name__).warning(a)
+                self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 2!")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_2 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_2}")
+                self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
+                sys.exit()
+
+        if FORCE_SUB_CHANNEL_3:
+            try:
+                link = (await self.get_chat(FORCE_SUB_CHANNEL_3)).invite_link
+                if not link:
+                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL_3)
+                    link = (await self.get_chat(FORCE_SUB_CHANNEL_3)).invite_link
+                self.invitelink3 = link
+            except Exception as a:
+                self.LOGGER(__name__).warning(a)
+                self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 3!")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_3 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_3}")
+                self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
+                sys.exit()
+
+        if FORCE_SUB_CHANNEL_4:
+            try:
+                link = (await self.get_chat(FORCE_SUB_CHANNEL_4)).invite_link
+                if not link:
+                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL_4)
+                    link = (await self.get_chat(FORCE_SUB_CHANNEL_4)).invite_link
+                self.invitelink4 = link
+            except Exception as a:
+                self.LOGGER(__name__).warning(a)
+                self.LOGGER(__name__).warning("Bot Can't Export Invite link From Force Sub Channel 4!")
+                self.LOGGER(__name__).warning("Please Double Check The FORCE_SUB_CHANNEL_4 Value And Make Sure Bot Is Admin In Channel With Invite Users Via Link Permission, Current Force Sub Channel ID: {FORCE_SUB_CHANNEL_4}")
+                self.LOGGER(__name__).info("\nBot Stopped. https://t.me/MadflixBots_Support For Support")
+                sys.exit()
+
         try:
             db_channel = await self.get_chat(CHANNEL_ID)
             self.db_channel = db_channel
             hey_message = await self.send_message(chat_id=db_channel.id, text="Hey 👋")
+            # Schedule message deletion after 30 seconds
             asyncio.create_task(self.delete_message_after_delay(db_channel.id, hey_message.id, 5))
         except Exception as e:
-            self.LOGGER(__name__).warning(f"Error accessing DB Channel: {e}")
+            self.LOGGER(__name__).warning(e)
+            self.LOGGER(__name__).warning(f"Make Sure Bot Is Admin In DB Channel, And Double Check The CHANNEL_ID Value, Current Value: {CHANNEL_ID}")
+            self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/MadflixBots_Support For Support")
             sys.exit()
 
         self.set_parse_mode(ParseMode.HTML)
-        self.LOGGER(__name__).info("✅ Bot Running!\n\nCreated By \nhttps://t.me/Madflix_Bots")
+        self.LOGGER(__name__).info(f"Bot Running..!\n\nCreated By \nhttps://t.me/Madflix_Bots")
+        self.LOGGER(__name__).info(f"""ミ💖 MADFLIX BOTZ 💖彡""")
+        self.username = usr_bot_me.username
 
-        # Notify restart
+        # Send restarted message
         saving_message = await self.send_message(chat_id=CHANNEL_ID, text="Bot restarted successfully.")
+        
+        # Schedule message deletion after 30 seconds
         asyncio.create_task(self.delete_message_after_delay(CHANNEL_ID, saving_message.id, 30))
 
-        # Start Flask in a new thread
+        # Notify all sudo users and the owner that changes are saved
+
+        # Start Flask app in a new thread
         Thread(target=run_flask).start()
 
-        # Start web server
+        # web-response
         app = web.AppRunner(await web_server())
         await app.setup()
-        await web.TCPSite(app, "0.0.0.0", PORT).start()
+        bind_address = "0.0.0.0"
+        await web.TCPSite(app, bind_address, PORT).start()
 
-        # Call update function after bot starts
+        # Call the update_saved_button_state function after the bot starts
         await update_saved_button_state(saving_message)
 
     async def delete_message_after_delay(self, chat_id, message_id, delay):
-        await asyncio.sleep(delay)
+        await sleep(delay)
         await self.delete_messages(chat_id, message_id)
 
     async def stop(self, *args):
-        await self.userbot.stop()  # Stop the userbot when the bot stops
         await super().stop()
-        self.LOGGER(__name__).info("❌ Bot Stopped...")
+        self.LOGGER(__name__).info("Bot Stopped...")
 
-#######################
-# RUN BOT
-#######################
-if __name__ == "__main__":
+if __name__ == '__main__':
     bot = Bot()
     bot.run()
+
+# Jishu Developer 
+# Don't Remove Credit 🥺
+# Telegram Channel @Madflix_Bots
+# Backup Channel @JishuBotz
+# Developer @JishuDeveloper
