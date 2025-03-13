@@ -406,6 +406,181 @@ async def autodel_command(client: Client, message: Message):
     await message.reply_text(f"The current auto delete timer is set to {(get_auto_delete_time())} seconds.")
 
 
+
+from pyrogram import Client, filters, idle
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pymongo import MongoClient
+import asyncio
+
+#######################
+# Configuration
+#######################
+API_ID = 123456                  # Your API_ID
+API_HASH = "your_api_hash"       # Your API_HASH
+BOT_TOKEN = "your_bot_token"     # Your Bot Token
+USERBOT_STRING = "your_userbot_string"  # Your Userbot string session
+ADMIN_ID = 123456789             # Your Telegram user ID (for admin commands)
+
+MONGO_URI = "mongodb://localhost:27017"  # MongoDB connection URI
+DB_NAME = "YourDB"
+COLLECTION_NAME = "channels"
+
+#######################
+# MongoDB Setup
+#######################
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client[DB_NAME]
+channels_collection = db[COLLECTION_NAME]
+
+def save_channels(channels):
+    """Save/update channels list in MongoDB."""
+    channels_collection.update_one({"_id": "channels"}, {"$set": {"list": channels}}, upsert=True)
+
+def get_channels():
+    """Retrieve saved channels from MongoDB."""
+    doc = channels_collection.find_one({"_id": "channels"})
+    return doc.get("list", []) if doc else []
+
+#######################
+# Clients
+#######################
+# The bot client (assumes you already have a working bot instance)
+bot = Client("bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# The userbot client (needed to search posts in channels)
+userbot = Client("userbot", api_id=API_ID, api_hash=API_HASH, session_string=USERBOT_STRING)
+
+#######################
+# Helper: Pagination Keyboard
+#######################
+def build_keyboard(results, page, query):
+    """
+    Create an inline keyboard:
+      - Up to 4 results per page (each button links to a post)
+      - Navigation row with "Previous", current page indicator, and "Next"
+    """
+    max_per_page = 4
+    total = len(results)
+    total_pages = (total + max_per_page - 1) // max_per_page
+    start = page * max_per_page
+    end = start + max_per_page
+
+    buttons = []
+    for i, res in enumerate(results[start:end], start=1):
+        # Format the URL: remove '@' from channel name if present.
+        channel = res["channel"]
+        channel_url = channel.lstrip("@")
+        url = f"https://t.me/{channel_url}/{res['id']}"
+        buttons.append([InlineKeyboardButton(f"Post {start+i}", url=url)])
+
+    # Navigation buttons: "Previous", page indicator, "Next"
+    nav_buttons = []
+    if page > 0:
+        nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"prev:{query}:{page-1}"))
+    nav_buttons.append(InlineKeyboardButton(f"{page+1}/{total_pages}", callback_data="ignore"))
+    if page < total_pages - 1:
+        nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"next:{query}:{page+1}"))
+    if nav_buttons:
+        buttons.append(nav_buttons)
+    return InlineKeyboardMarkup(buttons)
+
+#######################
+# Helper: Search Function (using userbot)
+#######################
+async def search_posts(query, limit=10):
+    """
+    Use the userbot to search for posts matching the query in each saved channel.
+    Returns a list of dictionaries with keys: "id" (message_id) and "channel".
+    """
+    results = []
+    channels = get_channels()
+    async with userbot:
+        for channel in channels:
+            try:
+                async for msg in userbot.search_messages(channel, query, limit=limit):
+                    results.append({"id": msg.message_id, "channel": channel})
+            except Exception as e:
+                print(f"Error searching in {channel}: {e}")
+    return results
+
+#######################
+# Bot Command Handlers
+#######################
+@bot.on_message(filters.command("set_channels") & filters.user(ADMIN_ID))
+async def set_channels_handler(client, message):
+    """
+    /set_channels channel1, channel2, ...
+    Save the list of channels (e.g. @channelusername or channel ID) in MongoDB.
+    """
+    if len(message.command) < 2:
+        return await message.reply("Usage: /set_channels <channel1, channel2, ...>")
+    # Expecting a comma-separated list after the command.
+    channels = [ch.strip() for ch in message.text.split(" ", 1)[1].split(",")]
+    save_channels(channels)
+    await message.reply("✅ Channels updated:\n" + ", ".join(channels))
+
+@bot.on_message(filters.command("del_channels") & filters.user(ADMIN_ID))
+async def del_channels_handler(client, message):
+    """
+    /del_channels [channel1, channel2, ...]
+    
+    If channels are provided, remove those channels from the saved list.
+    If no channels are provided, clear the entire list.
+    """
+    if len(message.command) < 2:
+        # No channels provided: clear entire list.
+        save_channels([])
+        return await message.reply("✅ All channels have been removed.")
+    
+    channels_to_remove = [ch.strip() for ch in message.text.split(" ", 1)[1].split(",")]
+    current_channels = get_channels()
+    remaining_channels = [ch for ch in current_channels if ch not in channels_to_remove]
+    save_channels(remaining_channels)
+    await message.reply("✅ Removed channels: " + ", ".join(channels_to_remove) +
+                        "\nRemaining channels: " + ", ".join(remaining_channels))
+
+@bot.on_message(filters.command("search"))
+async def search_handler(client, message):
+    """
+    /search <query>
+    Searches posts using the userbot in the saved channels, then sends paginated results.
+    """
+    if len(message.command) < 2:
+        return await message.reply("Usage: /search <query>")
+    query = " ".join(message.command[1:])
+    results = await search_posts(query)
+    if not results:
+        return await message.reply("❌ No results found.")
+    markup = build_keyboard(results, page=0, query=query)
+    await message.reply(f"🔍 Results for '{query}':", reply_markup=markup)
+
+@bot.on_callback_query(filters.regex("^(prev|next):"))
+async def pagination_callback(client, callback: CallbackQuery):
+    """
+    Callback query handler for "prev" and "next" buttons.
+    The callback data is formatted as: "prev:<query>:<page>" or "next:<query>:<page>"
+    """
+    parts = callback.data.split(":")
+    if len(parts) != 3:
+        return await callback.answer("Invalid callback data.")
+    direction, query, page_str = parts
+    try:
+        page = int(page_str)
+    except ValueError:
+        return await callback.answer("Invalid page number.")
+    results = await search_posts(query)
+    markup = build_keyboard(results, page, query)
+    await callback.message.edit_reply_markup(markup)
+    await callback.answer()
+
+@bot.on_callback_query(filters.regex("^ignore$"))
+async def ignore_callback(client, callback: CallbackQuery):
+    """Do nothing when the page number button is pressed."""
+    await callback.answer()
+
+
+
+
 # Jishu Developer 
 # Don't Remove Credit 🥺
 # Telegram Channel @Madflix_Bots
