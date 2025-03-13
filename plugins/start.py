@@ -433,7 +433,8 @@ async def set_search_channels(client, message):
                 return await message.reply_text(f"❌ Failed to add: `{channel}`. Ensure the bot is an admin in the channel.")
 
         await message.reply_text(f"✅ Searchable channels updated:\n" + "\n".join(added_channels))
-    else message.reply("<b>Nuh ah!</b>")
+    else:
+        await message.reply("<b>Nuh ah!</b>")
 
 
 @Client.on_message(filters.command("search"))
