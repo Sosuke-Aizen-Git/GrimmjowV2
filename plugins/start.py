@@ -408,7 +408,7 @@ async def autodel_command(client: Client, message: Message):
 
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from mongodb import get_search_channels, add_search_channel, clear_search_channels
+from database.db_handler import get_search_channels, add_search_channel, clear_search_channels
 
 
 # In-memory pagination storage
