@@ -406,36 +406,34 @@ async def autodel_command(client: Client, message: Message):
     await message.reply_text(f"The current auto delete timer is set to {(get_auto_delete_time())} seconds.")
 
 
+
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database.db_handler import get_search_channels, add_search_channel, clear_search_channels
 
-
-# In-memory pagination storage
 user_search_data = {}
 
-@Client.on_message(filters.command("setsearch")
+@Client.on_message(filters.command("setsearch"))
 async def set_search_channels(client, message):
-    if message.from_user.id in SUDO_USERS:
-        """Allows admin to set searchable channels."""
-        if len(message.command) < 2:
-            return await message.reply_text("Usage: `/setsearch @channel1 -1001234567890`")
+    if message.from_user.id not in SUDO_USERS:
+        return await message.reply_text("<blockquote><b>Nuh ah!</b></blockquote>")
+
+    """Allows admin to set searchable channels."""
+    if len(message.command) < 2:
+        return await message.reply_text("Usage: `/setsearch @channel1 -1001234567890`")
     
-        clear_search_channels()
-        added_channels = []
+    clear_search_channels()
+    added_channels = []
 
-        for channel in message.command[1:]:
-            try:
-                chat = await client.get_chat(channel)
-                add_search_channel(chat.id, chat.username or str(chat.id))
-                added_channels.append(chat.username or str(chat.id))
-            except Exception:
-                return await message.reply_text(f"❌ Failed to add: `{channel}`. Ensure the bot is an admin in the channel.")
+    for channel in message.command[1:]:
+        try:
+            chat = await client.get_chat(channel)
+            add_search_channel(chat.id, chat.username or str(chat.id))
+            added_channels.append(chat.username or str(chat.id))
+        except Exception:
+            return await message.reply_text(f"❌ Failed to add: `{channel}`. Ensure the bot is an admin in the channel.")
 
-        await message.reply_text(f"✅ Searchable channels updated:\n" + "\n".join(added_channels))
-    else:
-        await message.reply("<b>Nuh ah!</b>")
-
+    await message.reply_text(f"✅ Searchable channels updated:\n" + "\n".join(added_channels))
 
 @Client.on_message(filters.command("search"))
 async def search_posts(client, message):
