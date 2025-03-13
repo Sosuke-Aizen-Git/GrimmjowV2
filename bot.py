@@ -148,6 +148,20 @@ class Bot(Client):
         await super().stop()
         self.LOGGER(__name__).info("Bot Stopped...")
 
+#######################
+# Integration: Run Bot and Userbot
+#######################
+async def main():
+    # Start the userbot session before handling any search requests.
+    await userbot.start()
+    async with bot:
+        print("Bot is running and ready to receive commands!")
+        await idle()  # Keep the bot running
+    await userbot.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
 if __name__ == '__main__':
     bot = Bot()
     bot.run()
