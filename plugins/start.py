@@ -200,6 +200,10 @@ async def get_users(client: Bot, message: Message):
         await message.reply_text("You are not an authorized user!")
 
 
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+
+broadcasting = {}
+
 async def broadcast_message(client, message, pin=False, forward=False):
     if message.from_user.id not in get_admins() + SUDO_USERS:
         return await message.reply_text("🚫 You are not an authorized user!")
@@ -211,11 +215,21 @@ async def broadcast_message(client, message, pin=False, forward=False):
     broadcast_msg = message.reply_to_message
     total, successful, blocked, deleted, unsuccessful = len(query), 0, 0, 0, 0
 
-    pls_wait = await message.reply("<i>Broadcasting message... Please wait.</i>")
+    pls_wait = await message.reply(
+        "<i>Broadcasting message... Please wait.</i>", 
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Cancel", callback_data="cancel_broadcast")]]
+        )
+    )
 
     start_time = time.time()  # Start time
 
+    broadcast_id = pls_wait.message_id  # Unique ID for this broadcast
+    broadcasting[broadcast_id] = True  # Mark as active broadcast
+
     for chat_id in query:
+        if not broadcasting.get(broadcast_id):
+            break  # Stop the broadcast if cancelled
         try:
             if forward:
                 sent_msg = await broadcast_msg.forward(chat_id)
@@ -259,7 +273,15 @@ async def broadcast_message(client, message, pin=False, forward=False):
 <b>Total Time Taken:</b> <code>{total_time} seconds</code>"""
 
     await pls_wait.edit(status)
-    
+    broadcasting.pop(broadcast_id, None)  # Remove from active broadcasts
+
+@Bot.on_callback_query(filters.regex(r"cancel_broadcast"))
+async def cancel_broadcast(client: Client, callback_query: CallbackQuery):
+    message_id = callback_query.message.message_id
+    broadcasting[message_id] = False  # Mark the broadcast as cancelled
+    await callback_query.message.edit_text("<i>Broadcast cancelled.</i>")
+    await callback_query.answer()
+
 # Normal broadcast
 @Bot.on_message(filters.private & filters.command('broadcast'))
 async def send_text(client, message):
@@ -275,13 +297,6 @@ async def send_pinned_broadcast(client, message):
 async def forward_broadcast(client, message):
     await broadcast_message(client, message, pin=False, forward=True)
 
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import logging
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 @Client.on_message(filters.command("fsubs"))
 async def force_subs(client, message):
