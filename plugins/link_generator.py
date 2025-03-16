@@ -44,51 +44,26 @@ async def batch(client: Client, message: Message):
 
 
 
-from pyrogram.errors import FloodWait
-
 @Bot.on_message(filters.private & filters.command('genlink'))
 async def link_generator(client: Client, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
-        # Check if the message is a reply
-        if message.reply_to_message:
-            channel_message = message.reply_to_message
-        else:
-            while True:
-                try:
-                    channel_message = await client.ask(
-                        text = "Forward Message From The DB Channel (With Quotes)..\n\nOr Send The DB Channel Post link",
-                        chat_id = message.from_user.id,
-                        filters = filters.forwarded
-                    )
-                except FloodWait as e:
-                    await asyncio.sleep(e.x)
-                    continue
-                except:
-                    return
-                msg_id = await get_message_id(client, channel_message)
-                if msg_id:
-                    break
-                else:
-                    await channel_message.reply("❌ Error\n\nThis Forwarded Post Is Not From My DB Channel Or This Link Is Not Taken From DB Channel", quote = True)
-                    continue
-
-        # Save the message in the database channel if it is a reply
-        if message.reply_to_message:
+        while True:
             try:
-                db_message = await client.forward_messages(
-                    chat_id = client.db_channel.id,
-                    from_chat_id = message.chat.id,
-                    message_ids = message.reply_to_message.message_id
-                )
-                msg_id = db_message.message_id
+                channel_message = await client.ask(text = "Forward Message From The DB Channel (With Quotes)..\n\nOr Send The DB Channel Post link", chat_id = message.from_user.id, filters=(filters.forwarded | (filters.text & ~filters.forwarded)), timeout=60)
             except:
-                await message.reply("❌ Error\n\nFailed to save the message in the database channel", quote = True)
                 return
+            msg_id = await get_message_id(client, channel_message)
+            if msg_id:
+                break
+            else:
+                await channel_message.reply("❌ Error\n\nThis Forwarded Post Is Not From My DB Channel Or This Link Is Not Taken From DB Channel", quote = True)
+                continue
 
         base64_string = await encode(f"get-{msg_id * abs(client.db_channel.id)}")
         link = f"https://t.me/{client.username}?start={base64_string}"
         reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Share URL", url=f'https://telegram.me/share/url?url={link}')]])
-        await message.reply_text(f"<b>Here Is Your Link</b>\n\n{link}", quote = True, reply_markup = reply_markup)
+        await channel_message.reply_text(f"<b>Here Is Your Link</b>\n\n{link}", quote=True, reply_markup=reply_markup)
+
 
 
 
