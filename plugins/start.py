@@ -132,27 +132,24 @@ async def not_joined(client: Client, message: Message):
     await message.react("👎")
 
     # Send initial message before checking not_join
-    checking_message = await message.reply("🔄 Checking your subscription status...")
+    
+    # Send animated "Checking..." message
+    animation_message = await message.reply("🔄 Checking...")
+    for _ in range(3):
+        await asyncio.sleep(1)
+        await animation_message.edit(f"🔄 Checking{'.' * (_ % 3 + 1)}")
+
+    # Send "Please Wait..." message
+    temp_msg = await message.reply("Please Wait...")
 
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
 
     buttons = []
     for i in range(1, 5):
-        channel_id = get_force_sub_channel(i)
-        if channel_id:
-            try:
-                # Check if the user is already a member of the channel
-                member = await client.get_chat_member(chat_id=channel_id, user_id=message.from_user.id)
-                # If the user is not a member, add the join button
-                if member.status in ['member', 'administrator', 'creator']:
-                    continue  # Skip adding button if user is already a member
-                else:
-                    chat = await client.get_chat(chat_id=channel_id)
-                    invitelink = await client.create_chat_invite_link(chat_id=channel_id)
-                    buttons.append([InlineKeyboardButton(text=chat.title, url=invitelink.invite_link)])
-            except Exception as e:
-                pass
+        invitelink = (await client.get_chat(get_force_sub_channel(i))).invite_link if get_force_sub_channel(i) else None
+        if invitelink:
+            buttons.append([InlineKeyboardButton(text=f"Join Channel {i}", url=invitelink)])
 
     try:
         buttons.append(
@@ -166,10 +163,11 @@ async def not_joined(client: Client, message: Message):
     except IndexError:
         pass
 
-    await checking_message.delete()  # Delete the "Checking your subscription status..." message
+    await temp_msg.delete()  # Delete the "Please Wait..." message
+    await animation_message.delete()
 
     # Check if user has joined all force sub channels before sending force sub message
-    if buttons:
+    if not await check_force_sub(client, message.from_user.id):
         random_photo = random.choice(PHOTOS)
         await client.send_photo(
             chat_id=message.chat.id,
@@ -177,12 +175,15 @@ async def not_joined(client: Client, message: Message):
             caption=FORCE_MSG.format(
                 first=message.from_user.first_name,
                 last=message.from_user.last_name,
-                username="@{}".format(message.from_user.username) if message.from_user.username else None,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
                 mention=message.from_user.mention,
                 id=message.from_user.id
             ), reply_markup=InlineKeyboardMarkup(buttons),
         )
         return
+
+    # Delete the animation message
+    
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
