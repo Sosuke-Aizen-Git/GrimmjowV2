@@ -145,7 +145,9 @@ async def not_joined(client: Client, message: Message):
                 # Check if the user is already a member of the channel
                 member = await client.get_chat_member(chat_id=channel_id, user_id=message.from_user.id)
                 # If the user is not a member, add the join button
-                if member.status not in ['member', 'administrator', 'creator']:
+                if member.status in ['member', 'administrator', 'creator']:
+                    continue  # Skip adding button if user is already a member
+                else:
                     chat = await client.get_chat(chat_id=channel_id)
                     invitelink = await client.create_chat_invite_link(chat_id=channel_id)
                     buttons.append([InlineKeyboardButton(text=chat.title, url=invitelink.invite_link)])
@@ -184,6 +186,7 @@ async def not_joined(client: Client, message: Message):
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
+
 
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
