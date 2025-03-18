@@ -138,13 +138,19 @@ async def not_joined(client: Client, message: Message):
     await refresh_force_sub_channels()
 
     buttons = []
-    tasks = []
     for i in range(1, 5):
         channel_id = get_force_sub_channel(i)
         if channel_id:
-            tasks.append(check_channel_membership(client, channel_id, message.from_user.id, buttons))
-
-    await asyncio.gather(*tasks)
+            try:
+                # Check if the user is already a member of the channel
+                member = await client.get_chat_member(chat_id=channel_id, user_id=message.from_user.id)
+                # If the user is not a member, add the join button
+                if member.status not in ['member', 'administrator', 'creator']:
+                    chat = await client.get_chat(chat_id=channel_id)
+                    invitelink = await client.create_chat_invite_link(chat_id=channel_id)
+                    buttons.append([InlineKeyboardButton(text=chat.title, url=invitelink.invite_link)])
+            except Exception as e:
+                pass
 
     try:
         buttons.append(
@@ -178,17 +184,6 @@ async def not_joined(client: Client, message: Message):
 
     # User has joined all channels, proceed with start command
     await start_command(client, message)
-
-async def check_channel_membership(client, channel_id, user_id, buttons):
-    try:
-        # Check if the user is already a member of the channel
-        member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
-        if member.status not in ['member', 'administrator', 'creator']:
-            chat = await client.get_chat(chat_id=channel_id)
-            invitelink = await client.create_chat_invite_link(chat_id=channel_id)
-            buttons.append([InlineKeyboardButton(text=chat.title, url=invitelink.invite_link)])
-    except Exception as e:
-        pass
 
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
