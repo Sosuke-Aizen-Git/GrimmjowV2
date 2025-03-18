@@ -133,12 +133,6 @@ async def not_joined(client: Client, message: Message):
 
     # Send initial message before checking not_join
     checking_message = await message.reply("🔄 Checking your subscription status...")
-    
-    # Send animated "Checking..." message
-    animation_message = await message.reply("🔄 Checking...")
-    for _ in range(3):
-        await asyncio.sleep(1)
-        await animation_message.edit(f"🔄 Checking{'.' * (_ % 3 + 1)}")
 
     # Refresh the invite links and force sub channels
     await refresh_force_sub_channels()
@@ -164,7 +158,6 @@ async def not_joined(client: Client, message: Message):
     except IndexError:
         pass
 
-    await animation_message.delete()  # Delete the animated "Checking..." message
     await checking_message.delete()  # Delete the "Checking your subscription status..." message
 
     # Check if user has joined all force sub channels before sending force sub message
@@ -176,7 +169,7 @@ async def not_joined(client: Client, message: Message):
             caption=FORCE_MSG.format(
                 first=message.from_user.first_name,
                 last=message.from_user.last_name,
-                username=None if not message.from_user.username else '@' + message.from_user.username,
+                username="@{}".format(message.from_user.username) if message.from_user.username else None,
                 mention=message.from_user.mention,
                 id=message.from_user.id
             ), reply_markup=InlineKeyboardMarkup(buttons),
@@ -196,7 +189,6 @@ async def check_channel_membership(client, channel_id, user_id, buttons):
             buttons.append([InlineKeyboardButton(text=chat.title, url=invitelink.invite_link)])
     except Exception as e:
         pass
-
 
 @Bot.on_message(filters.command('users') & filters.private)
 @Bot.on_message(filters.command('users') & filters.group)
