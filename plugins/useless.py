@@ -82,7 +82,7 @@ async def get_bot_stats(bot):
 
     return status_message
 
-@Bot.on_message(filters.command('stats', prefixes=("","/",".")))
+@Bot.on_message(filters.command('stats'))
 async def stats(bot: Bot, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         sticker = await message.reply_sticker("CAACAgUAAxkBAAEG8_xnzbAQQOfHqMQrzWcOHBvU78EiRgAC_hMAAqiR-FZkMEjJt_CizDYE")
