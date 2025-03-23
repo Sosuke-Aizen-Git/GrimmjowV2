@@ -334,7 +334,7 @@ async def delete_files(messages, client, k):
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("Get Files", url= f"https://t.me/{client.username}?start={message.command[1]"),
+                    InlineKeyboardButton("Get Files", url=f"https://t.me/{client.username}?start={message.command[1]"),
                     InlineKeyboardButton("❌ Close", callback_data="close")
                 ]
             ]
