@@ -330,7 +330,10 @@ async def delete_files(messages, client, k):
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
 
     # Retrieve the command from the original message
-    command = k.text.split(' ')[-1] if k.text else ''
+    try:
+        command = k.text.split(' ')[-1] if k.text else ''
+    except IndexError:
+        command = ''
 
     # Create the inline keyboard with the "Try Again" button
     inline_keyboard = InlineKeyboardMarkup(
