@@ -128,6 +128,7 @@ async def start_command(client: Client, message: Message):
     
 
 @Bot.on_message(filters.command('start'))
+damn = f"https://t.me/{client.username}?start={message.command[1]"
 async def not_joined(client: Client, message: Message):
     await message.react("👎")
 
@@ -328,8 +329,18 @@ async def delete_files(messages, client, k):
                 await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
-    await k.edit_text("Your Video / File Is Successfully Deleted ✅")
-
+# Your existing code
+    await k.edit_text(
+        "Your Video / File Is Successfully Deleted ✅",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Get Files", url=damn),
+                    InlineKeyboardButton("❌ Close", callback_data="close")
+                ]
+            ]
+        )
+    )
      
 
 from pyrogram import Client, filters
