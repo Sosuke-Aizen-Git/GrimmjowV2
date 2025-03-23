@@ -81,72 +81,6 @@ async def start_command(client: Client, message: Message):
                 reply_markup = msg.reply_markup
             else:
                 reply_markup = None
-@Bot.on_message(filters.command('start') & subscribed)
-async def start_command(client: Client, message: Message):
-    Emoji = await message.reply("⏳")
-    await asyncio.sleep(1)  # Waits for 5 seconds before deleting
-    await Emoji.delete()
-    await message.react("👍")
-    
-    id = message.from_user.id
-    if not await present_user(id):
-        try:
-            await add_user(id)
-        except:
-            pass
-
-    # Save the command message URL
-    command_message_url = f"https://t.me/{client.username}?start={message.command[1]}"
-
-    text = message.text
-    if len(text) > 7:
-        try:
-            base64_string = text.split(" ", 1)[1]
-        except:
-            return
-        string = await decode(base64_string)
-        argument = string.split("-")
-        if len(argument) == 3:
-            try:
-                start = int(int(argument[1]) / abs(client.db_channel.id))
-                end = int(int(argument[2]) / abs(client.db_channel.id))
-            except:
-                return
-            if start <= end:
-                ids = range(start, end + 1)
-            else:
-                ids = []
-                i = start
-                while True:
-                    ids.append(i)
-                    i -= 1
-                    if i < end:
-                        break
-        elif len(argument) == 2:
-            try:
-                ids = [int(int(argument[1]) / abs(client.db_channel.id))]
-            except:
-                return
-        temp_msg = await message.reply("Please Wait...")
-        try:
-            messages = await get_messages(client, ids)
-        except:
-            await message.reply_text("Something Went Wrong..!")
-            return
-        await temp_msg.delete()
-
-        madflix_msgs = []  # List to keep track of sent messages
-
-        for msg in messages:
-            if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
-            else:
-                caption = "" if not msg.caption else msg.caption.html
-
-            if DISABLE_CHANNEL_BUTTON:
-                reply_markup = msg.reply_markup
-            else:
-                reply_markup = None
 
             try:
                 madflix_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
@@ -160,10 +94,10 @@ async def start_command(client: Client, message: Message):
             except:
                 pass
 
-        k = await client.send_message(chat_id=message.from_user.id, text=f"<blockquote><b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyrigh[...]")
+        k = await client.send_message(chat_id=message.from_user.id, text=f"<blockquote><b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.</blockquote>")
 
         # Schedule the file deletion
-        asyncio.create_task(delete_files(madflix_msgs, client, k, command_message_url))
+        asyncio.create_task(delete_files(madflix_msgs, client, k))
 
         return
     else:
@@ -190,7 +124,8 @@ async def start_command(client: Client, message: Message):
                 id=message.from_user.id
             ), reply_markup=reply_markup
         )
-        return    
+        return
+    
 
 @Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
@@ -385,7 +320,7 @@ async def force_subs(client, message):
     await temp_mssg.edit(f"<blockquote>Here is the list of force subscription channels:</blockquote>\n\n{channel_info}", reply_markup=reply_markup)
 
 # Function to handle file deletion
-async def delete_files(messages, client, k, command_message_url):
+async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
     for msg in messages:
         if msg is not None:  # Ensure msg is not None
@@ -393,16 +328,7 @@ async def delete_files(messages, client, k, command_message_url):
                 await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
-
-    # Create the inline keyboard with the "Try Again" button
-    inline_keyboard = InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton("Try Again", url=command_message_url)]
-        ]
-    )
-
-    await k.edit_text("Your Video / File Is Successfully Deleted ✅", reply_markup=inline_keyboard)    
-
+    await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
      
 
