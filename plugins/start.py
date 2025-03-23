@@ -126,6 +126,7 @@ async def start_command(client: Client, message: Message):
         )
         return
     
+get_files=f"https://t.me/{client.username}?start={message.command[1]}"
 
 @Bot.on_message(filters.command('start'))
 async def not_joined(client: Client, message: Message):
@@ -337,7 +338,7 @@ async def delete_files(messages, client, k):
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("Get Files", url=f"https://t.me/{client.username}?start={message.command[1]}"),
+                    InlineKeyboardButton("Get Files", url=f"get_files"),
                     InlineKeyboardButton("❌ Close", callback_data="close")
                 ]
             ]
