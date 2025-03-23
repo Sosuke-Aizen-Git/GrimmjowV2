@@ -32,10 +32,6 @@ async def start_command(client: Client, message: Message):
             await add_user(id)
         except:
             pass
-
-    # Save the command message URL
-    command_message_url = f"https://t.me/{client.username}?start={message.command[1]}"
-    
     text = message.text
     if len(text) > 7:
         try:
@@ -324,7 +320,7 @@ async def force_subs(client, message):
     await temp_mssg.edit(f"<blockquote>Here is the list of force subscription channels:</blockquote>\n\n{channel_info}", reply_markup=reply_markup)
 
 # Function to handle file deletion
-async def delete_files(messages, client, k, command_message_url):
+async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
     for msg in messages:
         if msg is not None:  # Ensure msg is not None
@@ -333,15 +329,21 @@ async def delete_files(messages, client, k, command_message_url):
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
 
+    # Retrieve the command from the original message
+    try:
+        command = k.text.split(' ')[-1] if k.text else ''
+    except IndexError:
+        command = ''
+
     # Create the inline keyboard with the "Try Again" button
     inline_keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("Try Again", url=command_message_url)]
+            [InlineKeyboardButton("Try Again", url=f"https://t.me/{client.username}?start={command}")]
         ]
     )
 
-    await k.edit_text("Your Video / File Is Successfully Deleted ✅", reply_markup=inline_keyboard)    
-
+    await k.edit_text("Your Video / File Is Successfully Deleted ✅", reply_markup=inline_keyboard)
+    
      
 
 from pyrogram import Client, filters
