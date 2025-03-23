@@ -320,6 +320,10 @@ async def force_subs(client, message):
     await temp_mssg.edit(f"<blockquote>Here is the list of force subscription channels:</blockquote>\n\n{channel_info}", reply_markup=reply_markup)
 
 # Function to handle file deletion
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import logging
+
 async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
     for msg in messages:
@@ -328,7 +332,6 @@ async def delete_files(messages, client, k):
                 await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
-# Your existing code
     await k.edit_text(
         "Your Video / File Is Successfully Deleted ✅",
         reply_markup=InlineKeyboardMarkup(
