@@ -328,8 +328,19 @@ async def delete_files(messages, client, k):
                 await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
-    await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
+    # Retrieve the command from the original message
+    command = k.text.split(' ')[-1] if k.text else ''
+
+    # Create the inline keyboard with the "Try Again" button
+    inline_keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Try Again", url=f"https://t.me/{client.username}?start={command}")]
+        ]
+    )
+
+    await k.edit_text("Your Video / File Is Successfully Deleted ✅", reply_markup=inline_keyboard)
+    
      
 
 from pyrogram import Client, filters
