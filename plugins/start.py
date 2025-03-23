@@ -32,9 +32,13 @@ async def start_command(client: Client, message: Message):
         except:
             pass
 
-    # Save the command message URL
-    command_message_url = f"https://t.me/{client.username}?start={message.command[1]}"
+# Check if message.command has enough elements
+    if len(message.command) > 1:
+        command_message_url = f"https://t.me/{client.username}?start={message.command[1]}"
+    else:
+        command_message_url = f"https://t.me/{client.username}?start=start"
 
+    
     text = message.text
     if len(text) > 7:
         try:
