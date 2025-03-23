@@ -207,6 +207,31 @@ async def get_users(client: Bot, message: Message):
         await message.reply_text("You are not an authorized user!")
 
 
+import os, asyncio, humanize
+from pyrogram import Client, filters, __version__
+from pyrogram.enums import ParseMode
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
+from bot import Bot
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4
+from helper_func import subscribed, encode, decode, get_messages
+from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
+from database.database import add_user, del_user, full_userbase, present_user
+from plugins.cbb import check_force_sub   # Import the check_force_sub function
+from plugins.refresh import refresh_database, refresh_force_sub_channels, cache_invite_links, refresh_command, refresh_auto_delete_time, refresh_admins
+import pymongo
+import asyncio
+import time
+import random  # Import random to select a random photo
+
+# Function to update broadcast progress
+async def update_broadcast_progress(client, message, successful, total):
+    hp_bar_length = 20
+    progress = int((successful / total) * hp_bar_length)
+    remaining = hp_bar_length - progress
+    hp_bar = f"[{'█' * progress}{'░' * remaining}]"
+    await message.edit(f"Broadcasting message... {hp_bar} {successful}/{total} users")
+
 async def broadcast_message(client, message, pin=False, forward=False):
     if message.from_user.id not in get_admins() + SUDO_USERS:
         return await message.reply_text("🚫 You are not an authorized user!")
@@ -253,6 +278,9 @@ async def broadcast_message(client, message, pin=False, forward=False):
             unsuccessful += 1
             continue
 
+        # Update broadcast progress
+        await update_broadcast_progress(client, pls_wait, successful, total)
+
     end_time = time.time()  # End time
     total_time = round(end_time - start_time, 2)  # Calculate total time taken
 
@@ -266,7 +294,7 @@ async def broadcast_message(client, message, pin=False, forward=False):
 <b>Total Time Taken:</b> <code>{total_time} seconds</code>"""
 
     await pls_wait.edit(status)
-    
+
 # Normal broadcast
 @Bot.on_message(filters.private & filters.command('broadcast'))
 async def send_text(client, message):
@@ -281,6 +309,7 @@ async def send_pinned_broadcast(client, message):
 @Bot.on_message(filters.private & filters.command('fpbroadcast'))
 async def forward_broadcast(client, message):
     await broadcast_message(client, message, pin=False, forward=True)
+
 
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
