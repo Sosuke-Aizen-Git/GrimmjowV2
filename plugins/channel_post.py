@@ -21,7 +21,7 @@ async def restart_bot(client: Client, message: Message):
     os.kill(os.getpid(), signal.SIGINT)
     redeploy_bot()
 
-@Bot.on_message(filters.private & ~filters.command(['start','users','broadcast','batch','genlink','stats', 'fsubs', 'admins', 'fpbroadcast', 'id', 'add_fsub', 'refresh', 'restart', 'autodel', 'setautodel', 'addadmin', 'rmadmin', 'logs', 'help', 'pbroadcast', 'setsearch', 'search']))
+@Bot.on_message(filters.private & ~filters.command(['start','users','broadcast','batch','genlink','stats', 'fsubs', 'admins', 'fpbroadcast', 'id', 'add_fsub', 'refresh', 'restart', 'autodel', 'setautodel', 'addadmin', 'rmadmin', 'logs', 'help', 'pbroadcast', 'setsearch', 'search', 'request']))
 async def channel_post(client: Client, message: Message):
     if message.from_user.id in get_admins() + SUDO_USERS:
         reply_text = await message.reply_text("Please Wait...!", quote = True)
