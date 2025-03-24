@@ -3,7 +3,6 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from config import CHANNEL_ID, ADMINS
 
 @Client.on_message(filters.command("request") & filters.private)
-@Client.on_message(filters.command("request") & filters.group)
 async def request_command(client: Client, message: Message):
     request_text = message.text.split(maxsplit=1)[1] if len(message.command) > 1 else ""
     user_name = message.from_user.first_name
@@ -24,16 +23,10 @@ async def request_command(client: Client, message: Message):
                     [[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}_{request_text}")]]
                 )
             )
-            if message.chat.type == "private":
-                await message.reply(
-                    "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
-                    "<blockquote>🔔 Please wait for admin approval.</blockquote>"
-                )
-            else:
-                await message.reply(
-                    "<blockquote>🎉 Your request has been sent!</blockquote>\n"
-                    "<blockquote>📬 Check your DMs for further notifications.</blockquote>"
-                )
+            await message.reply(
+                "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
+                "<blockquote>🔔 Please wait for admin approval.</blockquote>"
+            )
         except Exception as e:
             await message.reply(
                 f"<blockquote>❌ Failed to send the request.</blockquote>\n"
