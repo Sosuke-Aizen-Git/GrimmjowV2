@@ -1,3 +1,4 @@
+import base64
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from config import CHANNEL_ID, ADMINS
@@ -11,11 +12,14 @@ async def request_command(client: Client, message: Message):
 
     if request_text:
         try:
+            # Encode request text to prevent parsing errors
+            encoded_text = base64.urlsafe_b64encode(request_text.encode()).decode()
+            
             request_message = await client.send_message(
                 chat_id=target_channel_id,
                 text=f"Request from {user_name} (ID: {user_id}): {request_text}",
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("Accept", callback_data=f"accept_{user_id}_{request_text}")]]
+                    [[InlineKeyboardButton("Accept", callback_data=f"accept_{user_id}_{encoded_text}")]]
                 )
             )
             await message.reply("✅ Your request has been sent successfully.")
@@ -29,7 +33,10 @@ async def request_command(client: Client, message: Message):
 async def accept_request(client: Client, callback_query: CallbackQuery):
     data = callback_query.data.split("_")
     user_id = int(data[1])
-    request_text = data[2]
+    
+    # Decode the request text
+    encoded_text = data[2]
+    request_text = base64.urlsafe_b64decode(encoded_text.encode()).decode()
     
     if callback_query.from_user.id in ADMINS:
         admin_name = callback_query.from_user.first_name
