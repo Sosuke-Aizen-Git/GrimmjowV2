@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from config import CHANNEL_ID, ADMINS
 
 @Client.on_message(filters.command("request") & filters.private)
@@ -24,22 +24,29 @@ async def request_command(client: Client, message: Message):
     else:
         await message.reply("Please provide a request text after the command.")
 
+
 @Client.on_callback_query(filters.regex(r"^accept_\d+_.+$"))
-async def accept_request(client: Client, callback_query):
+async def accept_request(client: Client, callback_query: CallbackQuery):
     data = callback_query.data.split("_")
     user_id = int(data[1])
     request_text = data[2]
+    
     if callback_query.from_user.id in ADMINS:
+        admin_name = callback_query.from_user.first_name
+        
+        # Edit the original message to show request accepted
+        new_text = f"✅ {request_text} requested by {user_id}'s request accepted by {admin_name}."
+        
         try:
-            await client.send_message(
-                chat_id=user_id,
-                text=f"Your request \"{request_text}\" has been accepted."
+            # Edit the original message with updated text and button
+            await callback_query.message.edit_text(
+                text=new_text,
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("Accepted ✓", callback_data="none")]]
+                )
             )
             await callback_query.answer("Request accepted.")
         except Exception as e:
-            if "chat not found" in str(e).lower() or "user is blocked" in str(e).lower():
-                await callback_query.answer("User blocked or deleted the chat.", show_alert=True)
-            else:
-                await callback_query.answer(f"Failed to accept the request: {e}", show_alert=True)
+            await callback_query.answer(f"Failed to update the message: {e}", show_alert=True)
     else:
         await callback_query.answer("You are not authorized to accept requests.", show_alert=True)
