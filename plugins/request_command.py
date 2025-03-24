@@ -18,11 +18,11 @@ async def request_command(client: Client, message: Message):
                     [[InlineKeyboardButton("Accept", callback_data=f"accept_{user_id}_{request_text}")]]
                 )
             )
-            await message.reply("Your request has been sent.")
+            await message.reply("✅ Your request has been sent successfully.")
         except Exception as e:
-            await message.reply(f"Failed to send the request: {e}")
+            await message.reply(f"❌ Failed to send the request: {e}")
     else:
-        await message.reply("Please provide a request text after the command.")
+        await message.reply("⚠️ Please provide a request text after the command.")
 
 
 @Client.on_callback_query(filters.regex(r"^accept_\d+_.+$"))
@@ -45,8 +45,21 @@ async def accept_request(client: Client, callback_query: CallbackQuery):
                     [[InlineKeyboardButton("Accepted ✓", callback_data="none")]]
                 )
             )
-            await callback_query.answer("Request accepted.")
+            
+            # Send confirmation message to the user who requested
+            try:
+                await client.send_message(
+                    chat_id=user_id,
+                    text=f"🎉 Your request \"{request_text}\" has been accepted by {admin_name}."
+                )
+            except Exception as e:
+                if "chat not found" in str(e).lower() or "user is blocked" in str(e).lower():
+                    await callback_query.answer("User blocked or deleted the chat.", show_alert=True)
+                else:
+                    await callback_query.answer(f"⚠️ Failed to notify the user: {e}", show_alert=True)
+
+            await callback_query.answer("✅ Request accepted and user notified.")
         except Exception as e:
-            await callback_query.answer(f"Failed to update the message: {e}", show_alert=True)
+            await callback_query.answer(f"❌ Failed to update the message: {e}", show_alert=True)
     else:
-        await callback_query.answer("You are not authorized to accept requests.", show_alert=True)
+        await callback_query.answer("⚠️ You are not authorized to accept requests.", show_alert=True)
