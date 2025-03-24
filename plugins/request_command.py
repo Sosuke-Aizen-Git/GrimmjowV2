@@ -3,6 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from config import CHANNEL_ID, ADMINS
 
 @Client.on_message(filters.command("request") & filters.private)
+@Client.on_message(filters.command("request") & filters.group)
 async def request_command(client: Client, message: Message):
     request_text = message.text.split(maxsplit=1)[1] if len(message.command) > 1 else ""
     user_name = message.from_user.first_name
