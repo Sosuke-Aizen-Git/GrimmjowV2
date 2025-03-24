@@ -14,16 +14,36 @@ async def request_command(client: Client, message: Message):
         try:
             request_message = await client.send_message(
                 chat_id=target_channel_id,
-                text=f"Request from {user_name} (ID: {user_id}): {request_text}",
+                text=(
+                    "<blockquote>📩 New Request Received!</blockquote>\n"
+                    f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
+                    f"<blockquote>🆔 User ID: {user_id}</blockquote>\n"
+                    f"<blockquote>📝 Request: {request_text}</blockquote>"
+                ),
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("Accept", callback_data=f"accept_{user_id}_{request_text}")]]
+                    [[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}_{request_text}")]]
                 )
             )
-            await message.reply("Your request has been sent.")
+            if message.chat.type == "private":
+                await message.reply(
+                    "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
+                    "<blockquote>🔔 Please wait for admin approval.</blockquote>"
+                )
+            else:
+                await message.reply(
+                    "<blockquote>🎉 Your request has been sent!</blockquote>\n"
+                    "<blockquote>📬 Check your DMs for further notifications.</blockquote>"
+                )
         except Exception as e:
-            await message.reply(f"Failed to send the request: {e}")
+            await message.reply(
+                f"<blockquote>❌ Failed to send the request.</blockquote>\n"
+                f"<blockquote>⚠️ Error: {e}</blockquote>"
+            )
     else:
-        await message.reply("Please provide a request text after the command.")
+        await message.reply(
+            "<blockquote>❗️ Please provide the request text after the command.</blockquote>\n"
+            "<blockquote>Example: /request Add XYZ file</blockquote>"
+        )
 
 
 @Client.on_callback_query(filters.regex(r"^accept_\d+_.+$"))
@@ -36,18 +56,27 @@ async def accept_request(client: Client, callback_query: CallbackQuery):
         admin_name = callback_query.from_user.first_name
         
         # Edit the original message to show request accepted
-        new_text = f"✅ {request_text} requested by {user_id}'s request accepted by {admin_name}."
+        new_text = (
+            "<blockquote>✅ Request Accepted!</blockquote>\n"
+            f"<blockquote>📩 Request: {request_text}</blockquote>\n"
+            f"<blockquote>👤 User ID: {user_id}</blockquote>\n"
+            f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
+        )
         
         try:
             # Edit the original message with updated text and button
             await callback_query.message.edit_text(
                 text=new_text,
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("Accepted ✓", callback_data="none")]]
+                    [[InlineKeyboardButton("✅ Accepted ✓", callback_data="none")]]
                 )
             )
-            await callback_query.answer("Request accepted.")
+            await callback_query.answer("🎉 Request successfully accepted.")
         except Exception as e:
-            await callback_query.answer(f"Failed to update the message: {e}", show_alert=True)
+            await callback_query.answer(
+                f"<blockquote>❌ Failed to update the message.</blockquote>\n"
+                f"<blockquote>⚠️ Error: {e}</blockquote>",
+                show_alert=True
+            )
     else:
-        await callback_query.answer("You are not authorized to accept requests.", show_alert=True)
+        await callback_query.answer("🚫 <blockquote>You are not authorized to accept requests.</blockquote>", show_alert=True)
