@@ -67,9 +67,9 @@ async def accept_request(client: Client, callback_query: CallbackQuery):
             await callback_query.answer("🎉 Request successfully accepted.")
         except Exception as e:
             await callback_query.answer(
-                f"<blockquote>❌ Failed to update the message.</blockquote>\n"
-                f"<blockquote>⚠️ Error: {e}</blockquote>",
+                f"<❌ Failed to update the message.\n"
+                f"⚠️ Error: {e}",
                 show_alert=True
             )
     else:
-        await callback_query.answer("🚫 <blockquote>You are not authorized to accept requests.</blockquote>", show_alert=True)
+        await callback_query.answer("🚫 You are not authorized to accept requests.", show_alert=True)
