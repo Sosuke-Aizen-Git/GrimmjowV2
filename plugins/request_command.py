@@ -3,17 +3,6 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
 
 
-# Max request length to fit in callback data safely
-MAX_REQUEST_LENGTH = 48
-
-
-def trim_request_text(request_text):
-    """Trim request to fit in button safely with ellipsis if too long."""
-    if len(request_text) > MAX_REQUEST_LENGTH:
-        return request_text[:MAX_REQUEST_LENGTH] + "..."
-    return request_text
-
-
 @Client.on_message(filters.command("request") & filters.private)
 async def request_command(client: Client, message: Message):
     if len(message.command) == 1:
@@ -25,9 +14,6 @@ async def request_command(client: Client, message: Message):
     request_text = message.text.split(maxsplit=1)[1].strip()
     user_name = message.from_user.first_name
     user_id = message.from_user.id
-
-    # Trim the request text if too long
-    trimmed_request = trim_request_text(request_text)
 
     try:
         # Send the request to REQ_CHANNEL_ID
@@ -43,10 +29,10 @@ async def request_command(client: Client, message: Message):
                 [
                     [
                         InlineKeyboardButton(
-                            "✅ Accept", callback_data=f"accept_{user_id}_{trimmed_request}"
+                            "✅ Accept", callback_data=f"accept|{user_id}|{request_text}"
                         ),
                         InlineKeyboardButton(
-                            "❌ Reject", callback_data=f"reject_{user_id}_{trimmed_request}"
+                            "❌ Reject", callback_data=f"reject|{user_id}|{request_text}"
                         ),
                     ]
                 ]
@@ -66,15 +52,13 @@ async def request_command(client: Client, message: Message):
         )
 
 
-@Client.on_callback_query(filters.regex(r"^(accept|reject)_\d+_.+$"))
+@Client.on_callback_query(filters.regex(r"^(accept|reject)\|(\d+)\|(.+)$"))
 async def handle_request_action(client: Client, callback_query: CallbackQuery):
     if callback_query.from_user.id not in ADMINS:
         return await callback_query.answer("🚫 You are not authorized to perform this action.", show_alert=True)
 
-    data = callback_query.data.split("_", 2)
-    action = data[0]  # accept or reject
-    user_id = int(data[1])
-    request_text = data[2]
+    action, user_id, request_text = callback_query.data.split("|", 2)
+    user_id = int(user_id)
     admin_name = callback_query.from_user.first_name
 
     try:
