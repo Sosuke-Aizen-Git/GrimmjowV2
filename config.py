@@ -17,6 +17,7 @@ DB_NAME = os.environ.get("DB_NAME", "sahil")
 
 
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002121888464"))
+REQ_CHANNEL_ID = int(os.environ.get("REQ_CHANNEL_ID", "-1002121888464"))
 
 FORCE_SUB_CHANNEL_1 = get_force_sub_channel(1)
 FORCE_SUB_CHANNEL_2 = get_force_sub_channel(2)
@@ -56,10 +57,12 @@ START_MSG = os.environ.get("START_MESSAGE", "<blockquote>Hello {mention}</blockq
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {mention}\n\n<b>You Need To Join In My Channel/Group To Use Me\n\nKindly Please Join Channel</b>")
 
 PHOTOS = [
-    "https://litter.catbox.moe/dhsso4.jpg",
-    "https://litter.catbox.moe/b36vya.jpg",
+    "https://files.catbox.moe/1elsyu.jpg",
     # Add more photo URLs as needed
 ]
+
+FSUB_IMG = [ "https://files.catbox.moe/fxtgll.jpg",
+           ]
 
 ADMINS.append(OWNER_ID)
 ADMINS.append(5743248220)
