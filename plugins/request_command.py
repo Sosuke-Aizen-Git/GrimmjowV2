@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
 
 
-@Client.on_message(filters.command("request") & filters.private)
+@Client.on_message(filters.command("request") & (filters.private | filters.group))
 async def request_command(client: Client, message: Message):
     if len(message.command) == 1:
         return await message.reply(
@@ -14,16 +14,18 @@ async def request_command(client: Client, message: Message):
     request_text = message.text.split(maxsplit=1)[1].strip()
     user_name = message.from_user.first_name
     user_id = message.from_user.id
+    chat_type = "Group" if message.chat.type in ["group", "supergroup"] else "Private"
 
     try:
-        # Send the request to REQ_CHANNEL_ID
+        # Send request to REQ_CHANNEL_ID
         request_message = await client.send_message(
             chat_id=REQ_CHANNEL_ID,
             text=(
                 "<blockquote>📩 New Request Received!</blockquote>\n"
                 f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
                 f"<blockquote>🆔 User ID: {user_id}</blockquote>\n"
-                f"<blockquote>📝 Request: {request_text}</blockquote>"
+                f"<blockquote>📝 Request: {request_text}</blockquote>\n"
+                f"<blockquote>💬 Source: {chat_type}</blockquote>"
             ),
             reply_markup=InlineKeyboardMarkup(
                 [
@@ -40,10 +42,16 @@ async def request_command(client: Client, message: Message):
         )
 
         # Notify the user that the request was sent
-        await message.reply(
-            "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
-            "<blockquote>🔔 Please wait for admin approval.</blockquote>"
-        )
+        if message.chat.type == "private":
+            await message.reply(
+                "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
+                "<blockquote>🔔 Please wait for admin approval.</blockquote>"
+            )
+        else:
+            await message.reply(
+                "<blockquote>✅ Request sent successfully!</blockquote>\n"
+                "<blockquote>📬 Check your DM for updates.</blockquote>"
+            )
 
     except Exception as e:
         await message.reply(
@@ -63,7 +71,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
 
     try:
         if action == "accept":
-            # Mark the request as accepted
+            # Mark request as accepted
             new_text = (
                 "<blockquote>✅ Request Accepted!</blockquote>\n"
                 f"<blockquote>📩 Request: {request_text}</blockquote>\n"
@@ -71,7 +79,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                 f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
             )
 
-            # Edit the original message to show accepted status
+            # Update the original message to show accepted status
             await callback_query.message.edit_text(
                 text=new_text,
                 reply_markup=InlineKeyboardMarkup(
@@ -90,7 +98,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                 ),
             )
 
-            # Notify the user that the request has been accepted
+            # Notify the user about acceptance
             try:
                 await client.send_message(
                     chat_id=user_id,
@@ -101,12 +109,12 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                     ),
                 )
             except Exception:
-                pass  # Ignore if the user blocks the bot or deletes the chat
+                pass  # Ignore if the user blocks the bot
 
             await callback_query.answer("🎉 Request successfully accepted and forwarded.")
 
         elif action == "reject":
-            # Mark the request as rejected
+            # Mark request as rejected
             new_text = (
                 "<blockquote>❌ Request Rejected!</blockquote>\n"
                 f"<blockquote>📩 Request: {request_text}</blockquote>\n"
@@ -114,7 +122,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                 f"<blockquote>👑 Rejected by: {admin_name}</blockquote>"
             )
 
-            # Edit the original message to show rejected status
+            # Update the original message to show rejected status
             await callback_query.message.edit_text(
                 text=new_text,
                 reply_markup=InlineKeyboardMarkup(
@@ -122,7 +130,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                 ),
             )
 
-            # Notify the user that the request was rejected
+            # Notify the user about rejection
             try:
                 await client.send_message(
                     chat_id=user_id,
@@ -133,7 +141,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                     ),
                 )
             except Exception:
-                pass  # Ignore if the user blocks the bot or deletes the chat
+                pass  # Ignore if the user blocks the bot
 
             await callback_query.answer("❌ Request has been rejected.")
 
