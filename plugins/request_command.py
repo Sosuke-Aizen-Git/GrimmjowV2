@@ -30,7 +30,7 @@ async def request_command(client: Client, message: Message):
         # Add Accept Button with correct message ID
         await request_message.edit_reply_markup(
             InlineKeyboardMarkup(
-                [[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}_{request_message.id}")]]
+                [[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}_{request_text}")]]
             )
         )
 
