@@ -1,13 +1,13 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
-from config import CHANNEL_ID, ADMINS
+from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
 
 @Client.on_message(filters.command("request"))
 async def request_command(client: Client, message: Message):
     request_text = message.text.split(maxsplit=1)[1] if len(message.command) > 1 else ""
     user_name = message.from_user.first_name
     user_id = message.from_user.id
-    target_channel_id = CHANNEL_ID  # Ensure CHANNEL_ID is set in your config
+    target_channel_id = REQ_CHANNEL_ID  # Ensure CHANNEL_ID is set in your config
 
     if request_text:
         try:
