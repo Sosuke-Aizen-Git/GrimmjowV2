@@ -12,6 +12,7 @@ async def request_command(client: Client, message: Message):
 
     if request_text:
         try:
+            # Send the request message and store the message details
             request_message = await client.send_message(
                 chat_id=target_channel_id,
                 text=(
@@ -19,15 +20,22 @@ async def request_command(client: Client, message: Message):
                     f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
                     f"<blockquote>🆔 User ID: {user_id}</blockquote>\n"
                     f"<blockquote>📝 Request: {request_text}</blockquote>"
-                ),
+                )
+            )
+
+            # Edit the message to include the Accept button with correct message ID
+            await request_message.edit_text(
+                text=request_message.text,
                 reply_markup=InlineKeyboardMarkup(
                     [[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}_{request_message.id}")]]
                 )
             )
+
             await message.reply(
                 "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
                 "<blockquote>🔔 Please wait for admin approval.</blockquote>"
             )
+
         except Exception as e:
             await message.reply(
                 f"<blockquote>❌ Failed to send the request.</blockquote>\n"
@@ -52,9 +60,11 @@ async def accept_request(client: Client, callback_query: CallbackQuery):
         try:
             # Get the original request message
             request_message = await client.get_messages(REQ_CHANNEL_ID, message_id)
+            
+            # Extract the request text from the original message
             request_text = request_message.text.split("📝 Request: ")[1].split("</blockquote>")[0]
 
-            # Update original request message to show request accepted
+            # Update the original message to show request accepted
             new_text = (
                 "<blockquote>✅ Request Accepted!</blockquote>\n"
                 f"<blockquote>📩 Request: {request_text}</blockquote>\n"
@@ -62,7 +72,7 @@ async def accept_request(client: Client, callback_query: CallbackQuery):
                 f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
             )
 
-            await callback_query.message.edit_text(
+            await request_message.edit_text(
                 text=new_text,
                 reply_markup=InlineKeyboardMarkup(
                     [[InlineKeyboardButton("✅ Accepted ✓", callback_data="none")]]
