@@ -1,5 +1,4 @@
 import base64
-from datetime import datetime
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
@@ -44,11 +43,8 @@ async def request_command(client: Client, message: Message):
     user_name = message.from_user.first_name
     chat_type = "Group" if message.chat.type in ["group", "supergroup"] else "Private"
 
-    # Get the current timestamp and format it
-    request_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-
     # Encode request text to prevent callback issues
-    encoded_request_text = encode_request(f"{request_text}|{request_time}")
+    encoded_request_text = encode_request(request_text)
 
     try:
         # Send request to REQ_CHANNEL_ID with updated format for admin
@@ -59,7 +55,6 @@ async def request_command(client: Client, message: Message):
                 f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
                 f"<blockquote>🆔 <b>User ID:</b> <code>{user_id}</code></blockquote>\n"
                 f"<blockquote>📝 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
-                f"<blockquote>📅 <b>Requested At:</b> {request_time}</blockquote>\n"
                 f"<blockquote>💬 <b>Source:</b> {chat_type}</blockquote>"
             ),
             reply_markup=InlineKeyboardMarkup(
@@ -99,16 +94,14 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
     admin_name = callback_query.from_user.first_name
 
     try:
-        # Decode the encoded request text and extract request and time
-        decoded_data = decode_request(encoded_request_text)
-        request_text, request_time = decoded_data.split("|", 1)
+        # Decode the encoded request text
+        request_text = decode_request(encoded_request_text)
 
         if action == "accept":
             # Mark request as accepted
             new_text = (
                 "<blockquote>✅ <b>Request Accepted!</b></blockquote>\n"
                 f"<blockquote>📩 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
-                f"<blockquote>📅 <b>Requested At:</b> {request_time}</blockquote>\n"
                 f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
                 f"<blockquote>👑 <b>Accepted by:</b> {admin_name}</blockquote>"
             )
@@ -128,7 +121,6 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                     text=(
                         "<blockquote>✅ Your request has been accepted!</blockquote>\n"
                         f"<blockquote>📝 Request: {request_text}</blockquote>\n"
-                        f"<blockquote>📅 Requested At: {request_time}</blockquote>\n"
                         f"<blockquote>👑 Approved by: {admin_name}</blockquote>"
                     ),
                 )
@@ -142,7 +134,6 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
             new_text = (
                 "<blockquote>❌ <b>Request Rejected!</b></blockquote>\n"
                 f"<blockquote>📩 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
-                f"<blockquote>📅 <b>Requested At:</b> {request_time}</blockquote>\n"
                 f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
                 f"<blockquote>👑 <b>Rejected by:</b> {admin_name}</blockquote>"
             )
@@ -162,7 +153,6 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                     text=(
                         "<blockquote>❌ Your request has been rejected!</blockquote>\n"
                         f"<blockquote>📝 Request: {request_text}</blockquote>\n"
-                        f"<blockquote>📅 Requested At: {request_time}</blockquote>\n"
                         f"<blockquote>👑 Rejected by: {admin_name}</blockquote>"
                     ),
                 )
