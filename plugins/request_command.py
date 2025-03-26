@@ -1,3 +1,4 @@
+import base64
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
@@ -6,6 +7,16 @@ import time
 # Cooldown dictionary to store last request timestamps
 user_cooldown = {}
 COOLDOWN_TIME = 60  # Cooldown time in seconds (1 minute)
+
+
+# Function to safely encode request text
+def encode_request(text):
+    return base64.urlsafe_b64encode(text.encode()).decode()
+
+
+# Function to decode request text
+def decode_request(encoded_text):
+    return base64.urlsafe_b64decode(encoded_text.encode()).decode()
 
 
 @Client.on_message(filters.command("request"))
@@ -32,6 +43,9 @@ async def request_command(client: Client, message: Message):
     user_name = message.from_user.first_name
     chat_type = "Group" if message.chat.type in ["group", "supergroup"] else "Private"
 
+    # Encode request text to prevent callback issues
+    encoded_request_text = encode_request(request_text)
+
     try:
         # Send request to REQ_CHANNEL_ID
         request_message = await client.send_message(
@@ -47,11 +61,12 @@ async def request_command(client: Client, message: Message):
                 [
                     [
                         InlineKeyboardButton(
-                            "✅ Accept", callback_data=f"accept|{user_id}|{request_text}"
+                            "✅ Accept", callback_data=f"accept|{user_id}|{encoded_request_text}"
                         ),
                         InlineKeyboardButton(
-                            "❌ Reject", callback_data=f"reject|{user_id}|{request_text}")
-                    ]
+                            "❌ Reject", callback_data=f"reject|{user_id}|{encoded_request_text}"
+                        ),
+                    ],
                 ]
             ),
         )
@@ -74,11 +89,14 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
     if callback_query.from_user.id not in ADMINS:
         return await callback_query.answer("🚫 You are not authorized to perform this action.", show_alert=True)
 
-    action, user_id, request_text = callback_query.data.split("|", 2)
+    action, user_id, encoded_request_text = callback_query.data.split("|", 2)
     user_id = int(user_id)
     admin_name = callback_query.from_user.first_name
 
     try:
+        # Decode the encoded request text
+        request_text = decode_request(encoded_request_text)
+
         if action == "accept":
             # Mark request as accepted
             new_text = (
@@ -96,18 +114,6 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                 ),
             )
 
-            # Forward accepted request to CHANNEL_ID
-            # Currently this function is disabled, if you want to use this function to then remove the three quots
-            '''await client.send_message(
-                chat_id=CHANNEL_ID,
-                text=(
-                    "<blockquote>🎉 Request Accepted and Forwarded!</blockquote>\n"
-                    f"<blockquote>📩 Request: {request_text}</blockquote>\n"
-                    f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
-                    f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
-                ),
-            )'''
-
             # Notify the user about acceptance
             try:
                 await client.send_message(
@@ -121,7 +127,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
             except Exception:
                 pass  # Ignore if the user blocks the bot
 
-            await callback_query.answer("🎉 Request successfully accepted and forwarded.")
+            await callback_query.answer("🎉 Request successfully accepted.")
 
         elif action == "reject":
             # Mark request as rejected
