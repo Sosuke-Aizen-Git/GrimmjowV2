@@ -4,7 +4,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated, ChatAdminRequired
 from bot import Bot
-from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME, PHOTOS, FSUB_IMG
+from config import ADMINS, OWNER_ID, SUDO_USERS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT, FILE_AUTO_DELETE, FORCE_SUB_CHANNEL_1, FORCE_SUB_CHANNEL_2, FORCE_SUB_CHANNEL_3, FORCE_SUB_CHANNEL_4, DB_URL, DB_NAME, PHOTOS, FORCE_PIC 
 from helper_func import subscribed, encode, decode, get_messages
 from database.db_handler import get_force_sub_channel, refresh_db_handler, get_admins, get_auto_delete_time
 from database.database import add_user, del_user, full_userbase, present_user
@@ -17,6 +17,7 @@ import random  # Import random to select a random photo
 
 
 file_auto_delete = humanize.naturaldelta(get_auto_delete_time())
+
 
 @Bot.on_message(filters.command('start') & subscribed)
 async def start_command(client: Client, message: Message):
@@ -31,14 +32,6 @@ async def start_command(client: Client, message: Message):
             await add_user(id)
         except:
             pass
-
-# Check if message.command has enough elements
-    if len(message.command) > 1:
-        command_message_url = f"https://t.me/{client.username}?start={message.command[1]}"
-    else:
-        command_message_url = f"https://t.me/{client.username}?start=start"
-
-    
     text = message.text
     if len(text) > 7:
         try:
@@ -104,7 +97,7 @@ async def start_command(client: Client, message: Message):
         k = await client.send_message(chat_id=message.from_user.id, text=f"<blockquote><b>❗️ <u>IMPORTANT</u> ❗️</b>\n\nThis Video / File Will Be Deleted In {file_auto_delete} (Due To Copyright Issue Or Other Reasons).\n\n📌 Please Forward This Video / File To Somewhere Else And Start Downloading There.</blockquote>")
 
         # Schedule the file deletion
-        asyncio.create_task(delete_files(madflix_msgs, client, k, command_message_url))
+        asyncio.create_task(delete_files(madflix_msgs, client, k))
 
         return
     else:
@@ -175,7 +168,7 @@ async def not_joined(client: Client, message: Message):
 
     # Check if user has joined all force sub channels before sending force sub message
     if not await check_force_sub(client, message.from_user.id):
-        random_photo = random.choice(FSUB_IMG)
+        random_photo = random.choice(FORCE_PIC)
         await client.send_photo(
             chat_id=message.chat.id,
             photo=random_photo,
@@ -327,7 +320,7 @@ async def force_subs(client, message):
     await temp_mssg.edit(f"<blockquote>Here is the list of force subscription channels:</blockquote>\n\n{channel_info}", reply_markup=reply_markup)
 
 # Function to handle file deletion
-async def delete_files(messages, client, k, command_message_url):
+async def delete_files(messages, client, k):
     await asyncio.sleep(get_auto_delete_time())  # Wait for the duration specified in config.py
     for msg in messages:
         if msg is not None:  # Ensure msg is not None
@@ -335,15 +328,8 @@ async def delete_files(messages, client, k, command_message_url):
                 await client.delete_messages(chat_id=msg.chat.id, message_ids=[msg.id])
             except Exception as e:
                 print(f"The attempt to delete the media {msg.id} was unsuccessful: {e}")
+    await k.edit_text("Your Video / File Is Successfully Deleted ✅")
 
-    # Create the inline keyboard with the "Try Again" button
-    inline_keyboard = InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton("Try Again", url=command_message_url)]
-        ]
-    )
-
-    await k.edit_text("Your Video / File Is Successfully Deleted ✅", reply_markup=inline_keyboard)
      
 
 from pyrogram import Client, filters
