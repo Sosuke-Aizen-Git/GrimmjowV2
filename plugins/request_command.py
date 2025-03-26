@@ -1,19 +1,35 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
+import time
+
+# Cooldown dictionary to store last request timestamps
+user_cooldown = {}
+COOLDOWN_TIME = 60  # Cooldown time in seconds (1 minute)
 
 
 @Client.on_message(filters.command("request"))
 async def request_command(client: Client, message: Message):
+    user_id = message.from_user.id
     if len(message.command) == 1:
         return await message.reply(
             "<blockquote>❗️ Please provide the request text after the command.</blockquote>\n"
             "<blockquote>Example: /request Add XYZ file</blockquote>"
         )
 
+    # Check if the user is an admin (no cooldown for admins)
+    if user_id not in ADMINS:
+        last_request_time = user_cooldown.get(user_id, 0)
+        if time.time() - last_request_time < COOLDOWN_TIME:
+            remaining_time = int(COOLDOWN_TIME - (time.time() - last_request_time))
+            return await message.reply(
+                f"<blockquote>⏳ Please wait {remaining_time} seconds before sending another request.</blockquote>"
+            )
+        # Update last request time for non-admin users
+        user_cooldown[user_id] = time.time()
+
     request_text = message.text.split(maxsplit=1)[1].strip()
     user_name = message.from_user.first_name
-    user_id = message.from_user.id
     chat_type = "Group" if message.chat.type in ["group", "supergroup"] else "Private"
 
     try:
@@ -34,15 +50,13 @@ async def request_command(client: Client, message: Message):
                             "✅ Accept", callback_data=f"accept|{user_id}|{request_text}"
                         ),
                         InlineKeyboardButton(
-                            "❌ Reject", callback_data=f"reject|{user_id}|{request_text}"
-                        ),
+                            "❌ Reject", callback_data=f"reject|{user_id}|{request_text}")
                     ]
                 ]
             ),
         )
 
         # Notify the user that the request was sent
-        
         await message.reply(
             "<blockquote>✅ Request sent successfully!</blockquote>\n"
             "<blockquote>📬 Check your DM for updates.</blockquote>"
