@@ -97,7 +97,8 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
             )
 
             # Forward accepted request to CHANNEL_ID
-            await client.send_message(
+            # Currently this function is disabled, if you want to use this function to then remove the three quots
+            '''await client.send_message(
                 chat_id=CHANNEL_ID,
                 text=(
                     "<blockquote>🎉 Request Accepted and Forwarded!</blockquote>\n"
@@ -105,7 +106,7 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
                     f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
                     f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
                 ),
-            )
+            )'''
 
             # Notify the user about acceptance
             try:
