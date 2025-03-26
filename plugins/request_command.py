@@ -47,15 +47,15 @@ async def request_command(client: Client, message: Message):
     encoded_request_text = encode_request(request_text)
 
     try:
-        # Send request to REQ_CHANNEL_ID
+        # Send request to REQ_CHANNEL_ID with updated format for admin
         request_message = await client.send_message(
             chat_id=REQ_CHANNEL_ID,
             text=(
-                "<blockquote>📩 New Request Received!</blockquote>\n"
-                f"<blockquote>👤 User: <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
-                f"<blockquote>🆔 User ID: {user_id}</blockquote>\n"
-                f"<blockquote>📝 Request: {request_text}</blockquote>\n"
-                f"<blockquote>💬 Source: {chat_type}</blockquote>"
+                "<blockquote>📩 <b>New Request Received!</b></blockquote>\n"
+                f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_name}</a></blockquote>\n"
+                f"<blockquote>🆔 <b>User ID:</b> <code>{user_id}</code></blockquote>\n"
+                f"<blockquote>📝 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
+                f"<blockquote>💬 <b>Source:</b> {chat_type}</blockquote>"
             ),
             reply_markup=InlineKeyboardMarkup(
                 [
@@ -100,10 +100,10 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
         if action == "accept":
             # Mark request as accepted
             new_text = (
-                "<blockquote>✅ Request Accepted!</blockquote>\n"
-                f"<blockquote>📩 Request: {request_text}</blockquote>\n"
-                f"<blockquote>👤 User ID: {user_id}</blockquote>\n"
-                f"<blockquote>👑 Accepted by: {admin_name}</blockquote>"
+                "<blockquote>✅ <b>Request Accepted!</b></blockquote>\n"
+                f"<blockquote>📩 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
+                f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
+                f"<blockquote>👑 <b>Accepted by:</b> {admin_name}</blockquote>"
             )
 
             # Update the original message to show accepted status
@@ -132,10 +132,10 @@ async def handle_request_action(client: Client, callback_query: CallbackQuery):
         elif action == "reject":
             # Mark request as rejected
             new_text = (
-                "<blockquote>❌ Request Rejected!</blockquote>\n"
-                f"<blockquote>📩 Request: {request_text}</blockquote>\n"
-                f"<blockquote>👤 User ID: {user_id}</blockquote>\n"
-                f"<blockquote>👑 Rejected by: {admin_name}</blockquote>"
+                "<blockquote>❌ <b>Request Rejected!</b></blockquote>\n"
+                f"<blockquote>📩 <b>Request:</b> <code>{request_text}</code></blockquote>\n"
+                f"<blockquote>👤 <b>User:</b> <a href='tg://user?id={user_id}'>{user_id}</a></blockquote>\n"
+                f"<blockquote>👑 <b>Rejected by:</b> {admin_name}</blockquote>"
             )
 
             # Update the original message to show rejected status
