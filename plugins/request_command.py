@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from config import CHANNEL_ID, ADMINS, REQ_CHANNEL_ID
 
 
-@Client.on_message(filters.command("request") & (filters.private | filters.group))
+@Client.on_message(filters.command("request"))
 async def request_command(client: Client, message: Message):
     if len(message.command) == 1:
         return await message.reply(
@@ -42,16 +42,11 @@ async def request_command(client: Client, message: Message):
         )
 
         # Notify the user that the request was sent
-        if message.chat.type == "private":
-            await message.reply(
-                "<blockquote>🎉 Your request has been successfully sent!</blockquote>\n"
-                "<blockquote>🔔 Please wait for admin approval.</blockquote>"
-            )
-        else:
-            await message.reply(
-                "<blockquote>✅ Request sent successfully!</blockquote>\n"
-                "<blockquote>📬 Check your DM for updates.</blockquote>"
-            )
+        
+        await message.reply(
+            "<blockquote>✅ Request sent successfully!</blockquote>\n"
+            "<blockquote>📬 Check your DM for updates.</blockquote>"
+        )
 
     except Exception as e:
         await message.reply(
